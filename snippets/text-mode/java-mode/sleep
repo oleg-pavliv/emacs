@@ -1,0 +1,3 @@
+#name : sleep
+# --
+try { Thread.sleep($0); } catch(InterruptedException ie) {}

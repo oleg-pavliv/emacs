@@ -1,0 +1,2 @@
+machine oleg-ubuntu telnet login oleg 
+default ssh login lysis password lysis_1

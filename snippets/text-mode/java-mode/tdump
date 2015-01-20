@@ -1,0 +1,3 @@
+#name : tdump
+# --
+Thread.currentThread().dumpStack();

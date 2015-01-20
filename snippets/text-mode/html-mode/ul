@@ -1,0 +1,7 @@
+#contributor : Jimmy Wu <frozenthrone88@gmail.com>
+#name : <ul>...</ul>
+#group : list
+# --
+<ul class="$0" id="$1">
+  $2
+</ul>

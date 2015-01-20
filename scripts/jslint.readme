@@ -1,0 +1,37 @@
+Edit the jslint.js file. Scroll to the bottom and find this:
+
+ (function(){if(!JSLINT(WScript.StdIn.ReadAll(),.....
+Replace that (and everything that follows) with this:
+
+(function(){
+    var filename = "stdin";
+    var content= "";
+    if (WScript.Arguments.length > 0){
+        filename = WScript.Arguments(0);
+        var fso = new ActiveXObject("Scripting.FileSystemObject");
+        //var file = fso.GetFile(filename);
+        var fs = fso.OpenTextFile(filename, 1);
+        content = fs.ReadAll();
+        fs.Close();
+        fso = null;
+        fs = null;
+    } else {
+        content = WScript.StdIn.ReadAll();
+    }
+    if(!JSLINT(content,{passfail:false})){
+        WScript.StdErr.WriteLine("JSLINT");
+        for (var i=0; i<JSLINT.errors.length; i++) {
+            // sample error msg:
+            //  sprintf.js(53,42) JSLINT: Use the array literal notation [].
+            var e=JSLINT.errors[i];
+            if (e !== null){
+                var line = (typeof e.line == "undefined")?'0':e.line;
+                WScript.StdErr.WriteLine(filename + '(' +line+','+e.character+') JSLINT: '+e.reason);
+                WScript.StdErr.WriteLine('    ' + (e.evidence||'').replace(/^\s*(\S*(\s+\S+)*)\s*$/,"$1"));
+            }
+        }}}());
+
+This change does two things:
+
+- allows you to specify the file to run lint on, on the command line, rather than as stdin. Stdin still works if no file is specified at all.
+- emits the error messages in a format that is more similar to most C/C++ compilers.

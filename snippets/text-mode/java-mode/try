@@ -1,0 +1,9 @@
+#name : try {...} catch(...){...}
+# --
+try {
+    $0
+}
+catch (Exception ex) {
+      System.err.println(ex);
+      ex.printStackTrace();
+}

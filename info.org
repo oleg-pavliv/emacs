@@ -1,0 +1,985 @@
+* Nagra
+** send an event from the command line
+*** for the moment event id and app name is hardcoded in the nsm_er.cfg
+*** add the following lines to the /soft/ngesoft/nge1/nsm_er/current/param/nsm_er.cfg
+[RANGES#26000]
+name = "totott"
+*** restart the agent
+cmd>start_nsm_er_nge1 
+** interrogate_mo
+start_VBfind_common
+interrogate_mo_nge1 MO method retType paramName paramValue paramType ...
+interrogate_mo_nge1 jboss_cct_test/jboss verbosityOnER Integer32
+interrogate_mo_nge1 /tstsoft/j2ep-test-ear/MOB_J2epTest verbosityOnER Integer32
+interrogate_mo_nge1 /tstsoft/j2ep-test-ear/MOB_J2epTest setverbosityOnER void value 22222 Integer32
+interrogate_mo_nge1 /jboss_cct_test/jboss_cct_test/jboss AppInstanceNames StringSeq
+interrogate_mo_nge1 /jboss_cct_test/jboss_cct_test/jboss getMOConnectionsByApplication StringSeq applicationName mo_presentation String8
+interrogate_mo_nge1 /MOPresentation/mo_presentation/MOB_CalcMain add Integer32 p1 33 Integer32 p2 44 Integer32
+interrogate_mo_j2ep1 /helablinux02-oleg/j2ep-test-war_oleg/MOB_J2epTest setAttr_UInt16 void value 6 UInteger16
+** send event
+   /soft/local/common/watchdog/current/bin/nsm_message -eve 26094 -txt "<NSMTAG>my test app<NSMTAG>  <NSMTAG>host-name<NSMTAG> <NSMTAG>cas-name<NSMTAG>." -prg cfg_config.ksh -ora "jboss"
+
+** application id for user management /soft/local/common/data_files/current/param/APPLICATION_ID.data
+** restart CCTAgent: start_CCTAgent_nge1
+** install smth on hevev machine
+*** connect with filezilla to the machine using root/S***r and copy the file
+*** switch to su
+*** uncompress file.tar.Z
+** set debug log (put it into run.conf)
+J2EP_DEBUG=/tmp/jboss.log
+export J2EP_DEBUG
+
+
+
+* Perforce
+** Label creation
+   - New label Ctrl-N focus on label's window
+   - Fill "Description", "Revision" with @ prefix, "View" and check "Locked"
+** list hijacked files
+   p4 diff -f -sl //LYSIS/CMS/iDTV/REL/17.001/...#have | grep -v "^same"
+** list modified files
+p4 files //LYSIS/CMS/iDTV/REL/3.7LYS135/...@2011/01/01,@now
+
+* ivy
+** file build-Eclipse.properties
+j2ep.default.resolver=public-evaluation-resolver
+public.evaluation.repo.loc=http://chx-artiprod-01:8081/artifactory/j2ep-jboss-7-dev/
+j2ep.base.ivy.dir=c:/p4_ws/local-repository/work-ivy
+
+
+* Shell
+** sniff localhost on windows: RawCap.exe 127.0.0.1 filename. filename can be opened with wireshark
+** basic
+   - count number of lines (wc -l) in files: find . -type f -name '*.java' -exec wc -l {} ';' | cut -f1-2 -d'.' | sort
+   - count number of lines and total: find . -name '*.java' | xargs wc -l | sort
+   - sort files: find . -printf '%TY-%Tm-%Td %TT %p\n' | sort
+   - not writable: find . ! -perm +a=w -printf '%TY-%Tm-%Td %TT %p\n' | sort
+   - delete last 125000 lines from a file: head -n -125000 FILE > NEWFILE
+   - combine grep inverted (-v): find . -type f -print0 | xargs -0 -e grep -nH -e " ERROR " | grep -v "at com.lysis.idtv3.export.media.algorithm.MediaExportAlgorithm"
+   - combine grep: grep -nH -E "foo(.*?)bar\("    or   grep -nH -e "foo" | grep "bar("
+   - find . '(' -name 'foo*' -o -name 'bar*' ')' -print
+   - use tee for one output to multiple inputs: ls *.txt | tee /dev/tty txtlist.txt
+   - find . -path '*schedu*' 
+   - find . -path '*/tmp*' -prune -o -print
+   - general pattern: find [path] [tests for stuff you want to prune] -prune -o [the stuff you'd normally put after the path]
+   - find the "*.foo" files that aren't under ".snapshot" directories: find . -name .snapshot -prune -o -name '*.foo' -print 
+   - remove all files except java: find -type f | grep -v "\.java$" | xargs rm
+   - tail grep in cygwin: tail -f server.log | grep --line-buffered -e "--INSERT \|--UPDATE \|--DELETE "
+   - without spam: tail -f server.log | grep --line-buffered -e "--INSERT \|--UPDATE \|--DELETE " | grep --line-buffered -v "SET STATUS" | grep --line-buffered -v "SET WORKFLOW_STATUS" | grep --line-buffered -v "SET CHANGE_STEP_DATE"
+   - find files not containing string: find . -type f | xargs grep -c 'pattern' | grep ":0$" | cut -d':' -f1
+** tcsh redirect stderr to null
+(command > /dev/tty) >& /dev/null
+** advanced
+   - diff <(sort file1) <(sort file2)
+   - diff two pipes with two temp files: foo | bar > file1.txt && baz | bam > file2.txt && diff file1.txt file2.txt
+   - diff two pipes with anonymous pipes: diff <(foo | bar) <(baz | bam)
+   - rename all files and dirs to lower case: find my_root_dir -depth -exec rename 's/(.*)\/([^\/]*)/$1\/\L$2/' {} \;
+   - rename all filex *.txt to *.exe: find . -name "*.txt" | sed 's/\(.*\.\)\(.*\)/mv & \1exe/' | sh
+   - move 1000 lines from one file to another: head -1000 input > output && sed -i '1,+999d' input
+   - replace in files cmd>find . -name '*.xml' -exec perl -i.bak -pe 's/from_pattern/to_pattern/g' {} \;
+     note -i option should be specified before -pe options
+   - convert DOS to UNIX format cmd>tr -d '\15' < INPUT > OUTPUT
+   - replace files with empty file: find ../rebuildws/ -name "ivy-repositories.properties" | while read FILE ; do echo "" > $FILE ; done
+** network
+   - show network traffic:  tcpdump -v udp port 514
+   - send a message: nc -u helablinux01 514
+** xmlstarlet
+   - select attribute's value                    : xml sel -t -m "//EpgElement[@key='Title']" -v "." -n 1.xml
+   - select epg with Title or Rating key         : xml sel -t -m "//EpgDescription/EpgElement[@key='Title' or @key='Rating']" -c "."  -n 1.xml
+   - delete epg elemets                          : xml ed -d "//EpgDescription" 1.xml
+   - select data elements                        : xml sel -t -m "//Data" -c "." -n 1.xml
+   - select node whose title contains 2          : xml sel -t -m "/LysisData/Catalogue/Node[contains(@title,'2')]" -c "." -n 1.xml
+   - select nodes which have element Node        : xml sel -t -m "/LysisData/Catalogue/Node[Node]" -c '.' -n 1.xml
+   - select second element                       : xml sel -t -m "//EpgDescription/EpgElement[ 2]" -c "." -n 1.xml
+   - select epg whose parent/parent name is Node : xml sel -t -m "//EpgDescription/EpgElement[name(parent::*/parent::*) = 'Node']" -c "." -n 1.xml
+     other functions count()
+   - select the name of parent/parent node       : xml sel -t -m "//EpgDescription/EpgElement[@key='Rating']" -v "name(parent::*/parent::*)" -n 1.xml
+     other navigation "following-sibling::*", "preceding-sibling::*"
+   - following sibling's key                     : xml sel -t -m "//EpgDescription/EpgElement[@key='Rating']/following-sibling::EpgElement[@key='Regions']" -c "." -n 1.xml
+
+** redirect stderr in c-shell
+   sh -c 'command 2> /dev/null'
+   or
+   script
+   
+
+* JBOSS
+** enable debugLog set_debug_mode_nge1 /helablinux01/jboss_cct_base/jboss DEBUG
+
+** Memory settings
+*** meaning
+    -Xms initial heap size
+    -Xmx max heap size
+    -Xss max stack size
+    -Xmn heap size for the young generation
+    -Xmo initial/maximum old space size
+*** customer settings
+    - common                         : -Dsun.rmi.dgc.client.gcInterval=3600000 -Dsun.rmi.dgc.server.gcInterval=3600000
+    - telenet 1.5G                   : -Xms1536m -Xmx1536m -Xss2048k 
+    - telenet 2G                     : -Xms2048m -Xmx2048m -Xss2048k
+    - Mediaset                       : -Xgcpolicy:gencon -Xms1536m -Xmx1536m -Xmn768m -Xss2048k
+    - 2G IBM expert's recommendation : -Xgcpolicy:gencon -Xmx2048m -Xmn1024m -Xmo1024m -Xss2048k
+** let jconsole connect to jboss
+JAVA_OPTS="$JAVA_OPTS -Dcom.sun.management.jmxremote.port=64850"
+JAVA_OPTS="$JAVA_OPTS -Dcom.sun.management.jmxremote.authenticate=false"
+JAVA_OPTS="$JAVA_OPTS -Dcom.sun.management.jmxremote.ssl=false"
+
+** make JBoss MBeans visible in jconsole
+-Djboss.platform.mbeanserver -Djavax.management.builder.initial=org.jboss.system.server.jmx.MBeanServerBuilderImpl
+** cli commands
+jboss-cli.bat --gui
+/deployment=servlet-war.war/subsystem=web/servlet=MyServlet:read-attribute(name=maxTime)
+/deployment=servlet-war.war/subsystem=web/servlet=MyServlet:read-attribute(name=requestCount)
+
+jboss-cli.sh -c command=":read-resource(include-runtime=true, recursive=true, recursive-depth=10)"
+jboss-cli.sh -c command="/subsystem=naming:jndi-view"
+** logging
+*** Custom handlers: [[https://community.jboss.org/wiki/CustomLogHandlersOn701][one]], [[https://community.jboss.org/wiki/CreatingACustomLoggingHandlerInJBOSSAs710Final][two]]
+*** [[https://community.jboss.org/message/776182#776182][per application logs]]
+** [[https://access.redhat.com/site/documentation/en-US/JBoss_Enterprise_Application_Platform/6/html/Installation_Guide/Network_Ports_Used_By_JBoss_Enterprise_Application_Platform_62.html][jboss eap ports]]
+** [[http://stackoverflow.com/questions/22850228/how-to-run-different-apps-on-single-jboss-as-6-instance-behind-different-ports?rq%3D1][applications on different ports]]
+** Restrict port
+*** [[http://www.mastertheboss.com/jboss-web-server/using-web-valves-with-jboss-7][using-web-valves-with-jboss-7]]
+** jboss security
+*** Enable the https connector on jboss
+**** generate a certificate
+keytool -genkey -keystore server.keystore -storepass aTestPw2012 -keypass aTestPw2012 -keyalg RSA -validity 3600 -alias jbossccttest -dname "cn=JbossCCTBase,o=NagraVision,c=CH"
+**** add / uncomment the  following line in config/deploy/jboss-web.deployer/server.xml
+    <Connector port="8443" address="${jboss.bind.address}"
+               protocol="HTTP/1.1" SSLEnabled="true"
+               maxThreads="150" scheme="https" secure="true"
+               clientAuth="false" sslProtocol="TLS" 
+               keystoreFile="${jboss.server.home.dir}/conf/server.keystore"
+               keystorePass="aTestPw2012"/>
+
+
+
+* IBM
+** memory analysis
+[[http://www.ibm.com/developerworks/aix/library/au-aixoptimization-memtun2/index.html][source]]
+remark: nmon does not sort by data memory, it shows code+data+smth else, which doesn't reflect the real memory consumption
+*** vmstat 1 4 
+   avm -bthe amount of active virtual memory (in 4k pages) you are using, not including file pages.
+   fre - the size of your memory free list. In most cases, I don't worry when this is small
+   pi - pages paged in from the paging space.
+   po - pages paged out to the paging space.
+   r-The average number of runnable kernel threads over the timing interval you have specified.
+   b-The average number of kernel threads that are in the virtual memory waiting queue over your timing interval. 
+     If r is not higher than b, that is usually a symptom of a CPU problem, which could be caused by either an I/O or memory bottleneck.
+  us-User time.
+  sy-System time.
+  id-Idle time.
+  wa-Waiting on I/O
+    :PROPERTIES:
+--sample values with no memory-eaters
+    System configuration: lcpu=4 mem=7936MB
+    
+    kthr    memory              page              faults        cpu
+    ----- ----------- ------------------------ ------------ -----------
+     r  b   avm   fre  re  pi  po  fr   sr  cy  in   sy  cs us sy id wa
+     0  0 859503 1614776   0   0   0   0    0   0   6  293 435  0  0 99  0
+     0  0 859505 1614774   0   0   0   0    0   0   2  694 454  1  1 99  0
+     0  0 859505 1614774   0   0   0   0    0   0   2  215 463  0  0 99  0
+     0  0 859505 1614774   0   0   0   0    0   0   4  189 463  0  0 99  0
+    
+--sample values with 3 memory-eaters
+    System configuration: lcpu=4 mem=7936MB
+    
+    kthr    memory              page              faults        cpu
+    ----- ----------- ------------------------ ------------ -----------
+     r  b   avm   fre  re  pi  po  fr   sr  cy  in   sy  cs us sy id wa
+     1 12 2771056  2631   0 663 645 645  680   0 713  364 1662  1  1 45 52
+     0  0 2771058  2673   0 601 642 645  662   0 645  130 1548  1  1 45 52
+     0 12 2771058  2672   0 646 645 645  711   0 691  416 1613  1  1 45 53
+     0 12 2771058  2713   0 604 645 645  729   0 658  119 1545  1  1 46 52
+    
+ :END:
+
+*** ps gv | head -n 1; ps gv | sort +6b -7 -n -r | head -n 10 
+    RSS - The amount of RAM used for the text and data segments per process
+    %MEM - The actual amount of the RSS / Total RAM. Watch for processes that consume 40-70 percent of %MEM.
+    TRS - The amount of RAM used for the text segment of a process in kilobytes.
+    SIZE - The actual amount of paging space allocated for this process (text and data).
+
+    :PROPERTIES:
+--sample with no memory-eaters
+         PID    TTY STAT  TIME PGIN  SIZE   RSS   LIM  TSIZ   TRS %CPU %MEM COMMAND
+      569454      - A    130:44 32191 204164 105360    xx    69    36  0.3  6.0 /usr/ja
+      663718      - A     0:00    1  4256 29340    xx 87166 25084  0.0  2.0 oracleI
+     1052722      - A     0:00    1  4256 29340    xx 87166 25084  0.0  2.0 oracleI
+     1057018      - A     0:00    1  4256 29340    xx 87166 25084  0.0  2.0 oracleI
+      372850      - A     0:00    1  4244 29328    xx 87166 25084  0.0  2.0 oracleI
+      503886      - A     0:00    1  4244 29328    xx 87166 25084  0.0  2.0 oracleI
+      512122      - A     0:00    1  4244 29328    xx 87166 25084  0.0  2.0 oracleI
+      532530      - A     0:00    1  4244 29328    xx 87166 25084  0.0  2.0 oracleI
+      536648      - A     0:00    1  4244 29328    xx 87166 25084  0.0  2.0 oracleI
+      540776      - A     0:00    1  4244 29328    xx 87166 25084  0.0  2.0 oracleI
+--sample with 3 memory-eaters
+         PID    TTY STAT  TIME PGIN  SIZE   RSS   LIM  TSIZ   TRS %CPU %MEM COMMAND
+      569454      - A    130:51 32551 204164 100896    xx    69    56  0.3  1.0 /usr/ja
+      852028  pts/4 A     0:09   21 34636 34160    xx    69    56  1.1  0.0 java -X
+     1040530  pts/3 A     0:09   15 34728 33956    xx    69    56  1.1  0.0 java -X
+     1048662  pts/0 A     0:10  634 33744 33420    xx    69    56  1.2  0.0 java -X
+      663718      - A     0:00    1  4256 27540    xx 87166 23284  0.0  0.0 oracleI
+      950342      - A     0:00    1  4256 27540    xx 87166 23284  0.0  0.0 oracleI
+     1052722      - A     0:00    1  4256 27540    xx 87166 23284  0.0  0.0 oracleI
+     1057018      - A     0:00    1  4256 27540    xx 87166 23284  0.0  0.0 oracleI
+      372850      - A     0:00    1  4244 27528    xx 87166 23284  0.0  0.0 oracleI
+      532530      - A     0:00    1  4244 27528    xx 87166 23284  0.0  0.0 oracleI
+            :END:
+
+*** svmon -P | grep -p 15256 
+*** topas
+
+** memory and cpu analysis
+[[http://unix.ittoolbox.com/groups/technical-functional/ibm-aix-l/re-memory-usage-901788][source]] 
+   remark: does not work really good
+   0) You can check for top memory consuming processes by issuing the following commands: svmon -Put 5
+   1) Displaying top CPU_consuming processes: ps aux | head -1; ps aux | sort -rn +2 | head -10
+   2) Displaying top 10 memory-consuming processes:ps aux | head -1; ps aux | sort -rn +3 | head
+   3) Displaying process in order of being penalized: ps -eakl | head -1; ps -eakl | sort -rn +5
+   4) Displaying process in order of priority: ps -eakl | sort -n +6 | head
+   5) Displaying process in order of nice value: ps -eakl | sort -n +7
+   6) Displaying the process in order of time: ps vx | head -1;ps vx | grep -v PID | sort -rn +3 | head -10
+   7) Displaying the process in order of real memory use: ps vx | head -1; ps vx | grep -v PID | sort -rn +6 | head -10
+   8) Displaying the process in order of I/O: ps vx | head -1; ps vx | grep -v PID | sort -rn +4 | head -10
+   9) Displaying WLM classes: ps -a -o pid, user, class, pcpu, pmem, args
+   10) Determinimg process ID of wait processes: ps vg | head -1; ps vg | grep -w wait
+   11) Wait process bound to CPU: ps -mo THREAD -p <PID>
+
+** network
+   - dump network traffic: iptrace filename. to analyse use wireshark
+   - show open connections: netstats 
+** memory dump
+    #add the following lines to the run.sh
+    export IBM_JAVADUMP_OUTOFMEMORY="true"
+    export IBM_HEAPDUMPDIR="/soft/idtvsrv"
+    export IBM_HEAP_DUMP="true"
+    export IBM_HEAPDUMP="true"
+    export IBM_HEAPDUMP_OUTOFMEMORY="true"
+    #set unlimited size
+    ulimit unlimited
+
+    dump
+    >kill -3 process-id
+
+    analyze snap file: java com.ibm.jvm.format.TraceFormat snap_file
+
+** Heapdumps
+*** [[http://publib.boulder.ibm.com/infocenter/javasdk/v6r0/index.jsp%3Ftopic%3D%2Fcom.ibm.java.doc.diagnostics.60%2Fdiag%2Ftools%2Fdumpagents_syntax.html][IBM xdump options]]
+    java -Xdump:what
+JAVA_OUTOFMEMORY_OPTS=" -Xdump:none -Xdump:system:events=user+systhrow,filter=java/lang/OutOfMemoryError,label=/tmp/core%Y%m%d.%H%M%S.%pid.%seq.dmp,range=1..1
+,request=prepwalk+compact+exclusive,priority=900 -Xdump:heap:events=systhrow,filter=java/lang/OutOfMemoryError,label=/tmp/heapdump.%Y%m%d.%H%M%S.%pid.%seq.phd,
+range=1..1 -Xdump:tool:events=user+systhrow,filter=java/lang/OutOfMemoryError,exec="'"kill -9 %pid"'
+
+
+
+* Emacs
+** shell commands
+how to call from emacs lisp:
+ls -t ~/org *.txt | head -5
+
+tokens like ~, *, and | aren't processed/expanded by the ls program. They are processed/expanded by the shell (like Bourne shell /bin/sh or Bash /bin/bash).
+instead of doing (call-process "ls" nil t nil "-t" "~/org" "*.txt" "| head -5")
+it's necessary to do (call-process "/bin/sh" nil t nil "-c" "ls -t ~/org *.txt | head -5")
+another possibility is (shell-command "ls -t ~/org *.txt | head -5")
+** Zen mode
+   div#name.one.two
+   ul#name>li.item
+   p.one+p.two
+   ul#name>li.item*3
+   select>option#item-$*3
+** install
+*** compiling for ubuntu
+$ sudo aptitude install build-essential libxpm-dev libgif-dev libtiff-dev libjpeg-dev libgtk2.0-dev libdbus-1-dev texinfo
+*** windows
+   - install cygwin twice and make sure cygwin/bin is before windows to support grep-find
+   - diff uses cygintl-2.dll which is not present. to resolve the problem copy another cygintl-8.dll to cygintl-2.dll
+   - copy jpeg62.dll, giflib4.dll, libpng12.dll, zlib1.dll from gnu-win to emacs/bin to support jpeg, gif and png
+   - check (image-type-available-p 'png) to see if an image type is supported. check image-library-alist to see which dlls are required for image types
+   - to use emacsclient set ALTERNATE_EDITOR=d:\Soft\emacs\emacs-23.1\bin\runemacs.exe 
+** regexp
+   - \& entire match, \#& entire match as number, \1 1st match, \#1 1st match as number
+   - increment numbers: query-replace-regexp \b[0-9]+\b return \,(1+ \#&)
+   - newline regexp query-replace-regexp: something\(.\|C-qC-j\)*?something-else
+*** remove xml tags
+#+BEGIN_SRC regex
+<tag>\([[:ascii:][:nonascii:]]*?\)</tag>
+#+END_SRC
+*** \< \> beginning/end of a word \b word boundary
+line="cat dog sky"  
+echo "$line" |sed -n "s/\(.*\)\b\(.*\)/# |\1|\2|/p"
+echo "$line" |sed -n "s/\(.*\)\>\(.*\)/# |\1|\2|/p"
+echo "$line" |sed -n "s/\(.*\)\<\(.*\)/# |\1|\2|/p"
+echo
+line="cat  dog  sky"  
+echo "$line" |sed -n "s/\(.*\)\b\(.*\)/# |\1|\2|/p"
+echo "$line" |sed -n "s/\(.*\)\>\(.*\)/# |\1|\2|/p"
+echo "$line" |sed -n "s/\(.*\)\<\(.*\)/# |\1|\2|/p"
+echo
+line="cat  dog  sky  "  
+echo "$line" |sed -n "s/\(.*\)\b\(.*\)/# |\1|\2|/p"
+echo "$line" |sed -n "s/\(.*\)\>\(.*\)/# |\1|\2|/p"
+echo "$line" |sed -n "s/\(.*\)\<\(.*\)/# |\1|\2|/p"
+echo
+
+output
+
+|cat dog |sky|
+|cat dog| sky|
+|cat dog |sky|
+
+|cat  dog  |sky|
+|cat  dog|  sky|
+|cat  dog  |sky|
+
+|cat  dog  sky|  |
+|cat  dog  sky|  |
+|cat  dog  |sky  |
+** dates
+   - t N now
+   - arg t I (calc-inc-month) increment by months
+   - arg t W (calc-new-week) 
+   - t Y (calc-new-year)
+   - t M (calc-new-month)
+** disable word wrap
+   (add-hook 'my-mode-hook '(lambda () (toggle-truncate-lines 1))
+** tips
+   - M-x view-lossage: displays last 100 keys pressed. key history
+   - C-x ESC ESC (repeat-complex-command): The command is placed in the minibuffer as a Lisp form for editing.
+   - C-M-n C-M-p C-M-u C-M-d  Go to next previous parent down subdirectory header line
+   - C-x r t string-rectangle - add prefix to every line
+   - C-x r k kill-rectangle - delete the first few chars of every line (C-space and move to the right n chars)
+   - unprintable characters use C-q, e.g. M-% C-q C-j RET SPC RET, will replace all returns with spaces.
+   - M-5 C-x $  set-selective display
+   - edit a big file: buffer-disable-undo and delete-selection-mode
+   - word-search-forward word-search-backward
+   - kmacro-insert-counter (C-x C-k TAB) to insert a counter (e.g. 0-100) in a macro
+   - or M-: (dotimes (i 20) (insert (format "%2d.\n" (1+ i))))
+   - or column editing <ESC>n
+   - or M-x replace-regexp \(^.*\) with \# \1  you can also use \,(+ 1 \#) \1  to start with 1
+   - open remote file C-x C-f /root@idtvlinux03:/soft/idtvsrv/jboss-4.0.2/server/default/log/server.log     pwd:Superuser
+List all shortcuts               : C-h b
+   - List shortcuts with prefix C-x   : C-x C-h
+   - Scroll all buffers               : M-x scroll-all-mode
+   - See last inputs                  : C-h l or F1 l
+   - Sort numerically wrt last field  : C-u -1 M-x sort-numeric-fields
+   - Reverse lines in region          : M-x reverse-region
+   - Replace tabs by spaces           : M-x untabify
+   - Go to previous mark position     : C-u C-SPC
+   - Fit window to buffer content     : C-x -
+   - Scroll up other window           : C-M-- C-M-v
+   - Store window config in a register C-x r w <key> restore C-x r j <key>
+   - open several info nodes: "C-u 1 C-h i" or "C-u 42 C-h i"
+   - sudo file open: /sudo::/path/to/file
+   - change offset in cc-mode         : C-c C-o
+** passing an option from the command line
+   (defun my-argument-fn (switch)
+       (message "i was passed -my_argument"))
+   (add-to-list 'command-switch-alist '("-my_argument" . my-argument-fn))
+** elisp
+*** minibuffer
+;; list size must correspond to a number of args
+(defun op:sync (host &optional hours-ago root-dir)
+  (interactive (list
+                (setq host (read-minibuffer "host: "))
+                (setq hours-ago (if current-prefix-arg current-prefix-arg "1"))
+                (setq root-dir (if current-prefix-arg (read-file-name "root dir: " "/cygdrive/t/oleg/mirror/" nil t) "/cygdrive/t/oleg/mirror/"))))
+  )
+*** macros
+Q: I have written few functions, which nearly identical, save for names. For example
+; x is name, such as function/paragraph/line/etc.
+(defun my-x-function
+ (interactive)
+ (mark-x) (do-more-stuff) (modify-x))
+
+is there a way to put it automatically to generate function, paragraph, etc. functions?
+
+A:
+(defmacro make-my-function (name)
+  (list 'defun (intern (format "my-%s-function" name)) ()
+        (list 'interactive)
+        (list (intern (format "mark-%s" name)))
+        (list 'do-more-stuff)
+        (list (intern (format "modify-%s" name)))))
+
+(make-my-function x)
+(symbol-function 'my-x-function)
+
+*** process
+    - start process with a buffer: (start-process "process-name" (get-buffer-create "*rsync-buffer*") "/path/to/rsync" arg1 ... argn)
+    - (call-process-shell-command "find 't:\oleg\cmp' -iname 'manifest.mf' -exec rm -f '{}' ';'")
+    - (shell-command-to-string)
+*** Choose directory
+[[http://stackoverflow.com/questions/4801556/how-can-i-set-a-default-path-for-interactive-directory-selection-to-start-with-in][source]]
+#+BEGIN_SRC lisp
+   (defun choose-directory (directory)
+     (interactive (list (read-directory-name "What directory? " choose-directory-default-directory)))
+     (message "You chose %s." directory))
+
+   (defvar choose-directory-default-directory "/home/tjackson/work/data"  "Initial starting point.")
+#+END_SRC
+
+Which uses interactive with a lisp expression to call read-directory to get a directory name (you might want to add additional arguments, check the link/docs).
+Your original hunch would work as well, though, as you thought, isn't quite as clean. But, it does work well when you don't want to, or cannot, modify the function whose behavior you want to change. I've included that solution below to show you how you'd achieve it (the only piece of the puzzle you didn't mention was call-interactively):
+
+#+BEGIN_SRC lisp
+   ;; original version of choose-directory, calling (interactive "D")
+   (defun choose-directory (directory)
+      "sample that uses interactive to get a directory"
+      (interactive "DWhat directory? ")
+      (message "You chose %s." directory))
+
+   (defun wrap-choose-directory ()
+      (interactive)
+      (let ((default-directory choose-directory-default-directory))
+      (call-interactively 'choose-directory)))
+#+END_SRC
+
+** Working with
+*** minibuffer
+- show all choices in a window (minibuffer-with-setup-hook 'minibuffer-complete  (completing-read "pick one" (list "cat" "dog" "fish")))
+*** setup emacs to work with gmail
+I use offlineimap + dovecot for having the mails localy.
+http://obfuscatedcode.wordpress.com/2007/04/26/configuring-emacs-for-gmails-smtp/
+*** regex
+- "\([^"]+\) capture text between double quotes 
+- test regex M-x regexp-builder 
+- \&	the original found text
+- \1, \2, etc.	the 1st, 2nd, etc. parenthesized subgroup in the found text
+- \#	the number of replacements done so far
+- \?	a string obtained by prompting the user on each match
+- example (you have to use \( for the find and \, for the replace): query-replace-regexp \(\w+\) \(\w+\) with \,(upcase \2), \1
+- query-replace-regexp multiline (the following example conflicts with org conventions because of [ and ])  bla-bla\([[:ascii:][:nonascii:]]*?\)bla-bla-end
+*** rectangles
+    - mark rect region. ENTER multiple line editing
+    - M-n (cua-sequence-rectangle) to put incr numbers e.g. 1..100
+*** dired
+- dired-compare-directories
+- M modespec RET  Change the mode (also called "permission bits") of the specified files (dired-do-chmod)
+- % d regexp RET Flag for deletion all files whose names match the regex
+- % m regexp RET or * % regexp RET   Mark (with '*') all files whose names match the regex
+- % g regexp RET  Mark (with `*') all files whose contents contain a match for the regex
+- M-n M-p dired-next-marked-file dired-prev-marked-file
+- A regexp RET   Search all the marked files for the regular expression regexp; use M-, to resume the search
+- C-_    Undo changes in the Dired buffer, such as adding or removing marks
+- %R  Renames the currently highlighted file(s) using regular expressions. (example - from regex \(.+\).txt, to regex \1.text)
+- M-x find-name-dired chooses all the files in directory or its subdirectories whose individual names match pattern.
+- dired-do-find-marked-files
+*** html
+    - show-hide tags: M-x sgml-tags-invisible
+    - browse file: C-c C-v (browse-url-of-buffer)
+*** c++
+    - add the following line to the file in order to specify the compile command: // -*- mode:C++; compile-command:"g++ hello.cpp -g -o hello.exe"; -*-
+      then call M-x compile
+** org mode 
+*** insert code
+#+BEGIN_SRC java
+    try {
+    ...
+    }
+    catch (Exception e) {
+    ...
+    }
+#+END_SRC
+*** insert html code
+#+BEGIN_HTML
+   <button onclick="alert('you are!');">I feel lucky!</button> 
+#+END_HTML
+** Button
+(require 'button)
+(insert-button "foo" 'action (lambda (x) (find-file "~/emacs/addons/bar-cursor.el")))
+** HOWTOs
+*** auto scroll buffer to the end
+    - if the buffer is linked to a file: [[http://www.emacswiki.org/emacs/AutoRevertMode][auto-revert-tail-mode]]
+    - otherwise (set (make-local-variable 'window-point-insertion-type) t)
+*** find info, face under the cursor: what-cursor-position C-u C-x =
+*** find files in dired mode: M-x find-name-dired. Use shell regex, eg *~
+*** save file in the UNIX format C-x RET f
+*** treat _ as a part of a word
+    (modify-syntax-entry ?_ "w" c++-mode-syntax-table) ;; or another syntax-table
+*** interactive elisp session: M-x ielm
+*** distinguish between C-i and <TAB>
+(setq local-function-key-map (delq '(kp-tab . [ 9]) local-function-key-map)) ;; remove a space before 9 (org mode)
+
+;; this is C-i
+(global-set-key (kbd "C-i") (lambda () (interactive) (message "C-i"))) 
+;; this is <tab> key
+(global-set-key (kbd "<tab>") (lambda () (interactive) (message "<tab>")))
+*** profile
+    - elp-instrument-package and elp-results 
+*** replace lambda with a greek symbol 
+   :PROPERTIES:
+   ;; real lisp hackers use the lambda character
+   (defun sm-lambda-mode-hook ()
+       (font-lock-add-keywords nil `(("\\<lambda\\>"
+           (0 (progn (compose-region (match-beginning 0) (match-end 0)
+           ,(make-char 'greek-iso8859-7 107))
+           nil))))))
+   (add-hook 'emacs-lisp-mode-hook 'sm-lambda-mode-hook)
+   (add-hook 'lisp-interactive-mode-hook 'sm-lamba-mode-hook)
+:END:
+*** disable a function call (in the following example read-from-minibuffer)
+;; http://stackoverflow.com/questions/9182122/giving-a-value-to-a-function-that-requires-the-minibuffer
+(require 'cl)
+(defmacro preempt-minibuffer (&rest body)
+  `(flet ((read-from-minibuffer (&rest ignore)))
+     ,@body))
+*** java parsing
+   :PROPERTIES:
+(defvar java-function-regexp
+  (concat
+   "^[ \t]*"                                   ; leading white space
+   "\\(public\\|private\\|protected\\|"        ; some of these 8 keywords
+   "abstract\\|final\\|static\\|"
+   "synchronized\\|native"
+   "\\|[ \t\n\r]\\)*"                          ; or whitespace
+   "[a-zA-Z0-9_$]+"                            ; return type
+   "[ \t\n\r]*[[]?[]]?"                        ; (could be array)
+   "[ \t\n\r]+"                                ; whitespace
+   "\\([a-zA-Z0-9_$]+\\)"                      ; the name we want!
+   "[ \t\n\r]*"                                ; optional whitespace
+   "("                                         ; open the param list
+   "\\([ \t\n\r]*"                             ; optional whitespace
+   "\\<[a-zA-Z0-9_$]+\\>"                      ; typename
+   "[ \t\n\r]*[[]?[]]?"                        ; (could be array)
+   "[ \t\n\r]+"                                ; whitespace
+   "\\<[a-zA-Z0-9_$]+\\>"                      ; variable name
+   "[ \t\n\r]*[[]?[]]?"                        ; (could be array)
+   "[ \t\n\r]*,?\\)*"                          ; opt whitespace and comma
+   "[ \t\n\r]*"                                ; optional whitespace
+   ")"                                         ; end the param list
+   "[ \t\n\r]*"                                ; whitespace
+;   "\\(throws\\([, \t\n\r]\\|[a-zA-Z0-9_$]\\)+\\)?{"
+   "\\(throws[^{;]+\\)?"                       ; optional exceptions
+   "[;{]"                                      ; ending ';' (interfaces) or '{'
+   )
+  "Matches method names in java code, select match 2")
+
+(defvar java-class-regexp
+  "^[ \t\n\r]*\\(final\\|abstract\\|public\\|[ \t\n\r]\\)*class[ \t\n\r]+\\([a-zA-Z0-9_$]+\\)[^;{]*{"
+  "Matches class names in java code, select match 2")
+
+(defvar java-interface-regexp
+  "^[ \t\n\r]*\\(abstract\\|public\\|[ \t\n\r]\\)*interface[ \t\n\r]+\\([a-zA-Z0-9_$]+\\)[^;]*;"
+  "Matches interface names in java code, select match 2")
+
+(defvar java-imenu-regexp
+  (list (list nil java-function-regexp 2)
+        (list ".CLASSES." java-class-regexp 2)
+        (list ".INTERFACES." java-interface-regexp 2))
+  "Imenu expression for Java")
+
+;; install it
+(add-hook 'java-mode-hook
+          (function (lambda ()
+                      (setq imenu-generic-expression java-imenu-regexp))))
+
+(global-set-key "\C-cf" 'imenu)
+
+:END:
+
+*** set uft-8 encoding. May be a reson of SaxExeption 'Content is not allowed in prolog' M-x set-buffer-file-coding-system
+
+
+* IMS
+** clear last imported date on IMS
+login to the IMS computer as oracle/Oracle: su - oracle
+/home/oracle>IMSDB1
+to see what DB are up:
+/home/oracle>oraup.ksh
+/home/oracle> sqlplus imsdba/nagra
+SQL> DELETE code WHERE code_id LIKE '%LastI';
+SQL> DELETE code WHERE code_id LIKE '%LastL';
+SQL> commit;
+
+restart dim
+login as operator/Customer
+cd /soft/imssoft
+ls #to see what dim is installed
+/soft/imssoft>start_dim_ims1
+or
+/soft/imssoft>start_dim_ims2
+
+** start epg editor
+set JAVA_HOME=C:\j2sdk1.4.2_13
+set JBOSS_HOME=C:\NagraVision\EPGEditor\jboss-3.2.1
+admin start server
+operator/operator_pw
+
+
+* Misc
+** Graphviz convert dot to jpg
+./dot.exe -Gratio=1.0 -Tjpg c:/p4_ws/J2ep_BuildTools/life-cycles/build-lifecycle.dot -o c:/p4_ws/J2ep_BuildTools/life-cycles/build-lifecycle.jpg 
+** registry run as admin
+d:/Utils/sysinternals/PsExec.exe -i -d -s c:\\windows\\regedit.exe
+** unload pgp dll which takes 100% resource of one processor
+   cmd>regsvr32 /u pgpfsshl.dll
+** MS Word SaveAsText
+define the following macro in the Normal.dot
+
+#+BEGIN_SRC word-basic
+Sub SaveAsText()
+    ActiveDocument.SaveAs ActiveDocument.Path & Application.PathSeparator & ActiveDocument.Name & ".txt", 2
+    ActiveDocument.Close
+    Application.Quit
+End Sub
+#+END_SRC
+
+cmd>winword.exe WordDocument /mSaveAsText /q /n
+
+#+BEGIN_SRC shell
+#!/bin/bash
+
+# the IFS variable is a file separator (SPACE by default)
+# we have to change it to the new line to allow spaces in the file name
+SAVEIFS=$IFS
+IFS=$(echo -en "\n\b")
+for f in *.doc
+do
+  "c:/Program Files/Microsoft Office/OFFICE11/WINWORD.EXE" $f /mSaveAsText /q /n
+done
+IFS=$SAVEIFS
+#+END_SRC
+
+** export AWT_TOOLKIT="MToolkit" #run java on linux
+** show proxy settings: http://wpad/wpad.dat
+** make any website editable: javascript:document.body.contentEditable='true'; document.designMode='on'; void 0
+** ftp GET file script
+#+BEGIN_SRC shell
+#!/bin/ksh
+
+HOST=10.0.204.64
+FTP_USER=lysis
+FTP_PASSWORD=lysis_1
+FTP_DIR=/CTR/CIS/source
+FTP_FILE=test.xml
+
+LOGFILE=/tmp/FTP.log
+
+date >> $LOGFILE
+ftp -ivn $HOST << EOF >>${LOGFILE} 2>&1
+user $FTP_USER $FTP_PASSWORD
+cd  $FTP_DIR
+get $FTP_FILE
+bye   
+EOF   
+#+END_SRC
+** ftp mget all files: ftp>prompt
+** [[http://www.guba.com/watch/3000054867][slime setup]] 
+   - get the latest slime as tag.gz, unpack it to /home/oleg/etc/Emacs/slime-MM-DD-YYYY  (cvs does not always work)
+   - install sbcl: sudo apt-get install sbcl
+   - cd /home/oleg/; mkdir systems; cd systems; ln -s ../etc/Emacs/slime-MM-DD-YYYY/swank.asd
+   - create file /home/oleg/.sbclrc
+     (require :asdf)
+     (push "/home/oleg/systems/" asdf:*central-registry*)
+   - install ssh: sudo apt-get install openssh-client openssh-server
+   - in sbcl: (asdf oos 'asdf:load-op :swank)
+   - bind port (10.0.205.56 is local ip): ssh -L4005:127.0.0.1:4005 oleg@10.0.205.56
+
+
+
+
+
+* SQL
+** sqlplus useful commands
+   - execute script.sql and add exit (from the sqlplus): echo exit | sqlplus.exe IDTV_37_CTR_DEV4_OFFAIR/idtv_1@IDTV3DU2 @script.sql
+   - change: c/SELEET/SELECT then use / to reexecute a command 
+   - add: a/WHERE slot_id=82
+   - limit column size: COLUMN last_name FORMAT A30
+** hierachycal queries
+-- extract whole catalogue
+select lpad(' ', 2*(level - 1)) || name from dt3_vod_catalogue start with parent_id is null connect by prior xid = parent_id;
+-- prune branches 'VodMain' and 'Bioscoop' 
+select lpad(' ', 2*(level - 1)) || name from dt3_vod_catalogue start with parent_id is null connect by prior xid = parent_id and name != 'VodMain' and name != 'Bioscoop'
+-- with vod items
+select lpad(' ', 2*(level - 1)) || c.name || '  ' || (select count(*) from hdt3_vod_vod_item vi, hdt3_vod_item_node_link l where l.vod_item_id = vi.xid and l.catalogue_id = c.xid) from dt3_vod_catalogue c start with c.parent_id = 43347 connect by prior c.xid = c.parent_id;
+** diff between the last and the second last value
+Quotes Table:
+Date - Value - CompanyId
+13.1.2010 - 10 - 10
+11.1.2010 - 5 - 10
+10.1.2010 - 2 - 10
+8.10.2010 - 1 - 10
+12.1.2010 - 7 - 20
+10.1.2010 - 3 - 20
+9.1.2010 - 2 - 20
+8.10.2010 - 2 - 20
+
+How to get the diff between the newest and the second newest value per company
+
+SELECT  value - nextvalue AS diff
+FROM    (
+        SELECT  m.*,
+                LEAD(value) OVER (PARTITION BY companyId ORDER BY date DESC) AS nextvalue,
+                ROW_NUMBER() OVER (PARTITION BY companyId ORDER BY date DESC) AS rn
+        FROM    mytable m
+        )
+WHERE   rn = 1
+** retrieve table and index info
+SET PAGES 999;
+SET LONG 90000;
+SELECT DBMS_METADATA.GET_DDL('TABLE','DT3_GEN_PARAMETERS') FROM DUAL;
+SELECT DBMS_METADATA.GET_DEPENDENT_DDL('INDEX','HDT3_SCH_PROGRAMME_SLOT') FROM DUAL;
+
+** force index usage
+select /*+ FULL(DT3_CON_CONTENT) */ class from DT3_CON_CONTENT where class = 'DTV';
+select /*+ index(DT3_CON_CONTENT DT3_CON_CONTENT_IX1) */ class, title from DT3_CON_CONTENT where class = 'DTV';
+
+** pivot queries
+One of the frequently asked questions on SQL forums is how to present data horizontally rather than vertically, known as a pivot query. For example, instead of this:
+
+DEPTNO      JOB         HEADCOUNT
+----------------------------------------
+10          CLERK               1
+10          MANAGER             1
+20          ANALYST             2
+20          CLERK               2
+20          MANAGER             1
+30          CLERK               1
+30          MANAGER             1
+30          SALESMAN            4
+
+people would like to know how to produce this:
+
+DEPTNO         ANALYST       CLERK     MANAGER    SALESMAN
+------------------------------------------------------------
+10                               1           1
+20                   2           2           1
+30                               1           1           4
+
+In Oracle, the normal way is to write a query using DECODE like this:
+
+select deptno
+, count(DECODE(job,'ANALYST', 1)) as "ANALYST"
+, count(DECODE(job,'CLERK', 1)) as "CLERK"
+, count(DECODE(job,'MANAGER', 1)) as "MANAGER"
+, count(DECODE(job,'SALESMAN', 1)) as "SALESMAN"
+from emp
+group by deptno
+order by deptno; 
+** modify only a couple of columns in a many-columns table
+begin
+  for r in (select * from table_name where pk_id = 123456)
+  loop
+    r.pk := pk_seq.nextval;
+    r.fk := 987654;
+    insert into table_name values r;
+  end loop;
+end;
+
+** show and kill user session
+   select sid, serial#, username,schemaname,machine,status, logon_time from v$session where lower(schemaname) like '%r%';
+   alter system kill session 'SID,SERIAL#';
+
+
+* VIM
+** navigation
+tc until next appearence of c on current line Tc backward
+fc until and including next appearence of c on current line Fc backward
+; repeat last tfTF
+nH n lines before the first line on the screen
+nL n lines after the last line on the screen
+M middle of the screen
+** regex
+*** use \v to interpret everything except letters, numbers and _ as special, use \V to cancel \v, eg
+   - without \v  :%s/^\%(foo\)\{1,3}\(.\+\)bar$/\1/
+   - using \v    :%s/\v^%(foo){1,3}(.+)bar$/\1/
+   - :%s@<body>\v(\_.+)\V</body>@\1@
+*** \_. everything including newline, \{-} not greedy, eg
+    /<EpgText\_.\{-}<\/EpgText.*
+** search/replace
+   -- search of all occurences of word under cursor *
+   -- replace % (all file), g (all occurences in a line), c (confirmation), i (case insensitive)  :%s/search/replace/gci  
+   -- Change each 'foo' to 'bar' for all lines from line 5 to line 12 inclusive :5,12s/foo/bar/g
+   -- Change each 'foo' to 'bar' for all lines from mark a to mark b inclusive :'a,'bs/foo/bar/g
+   -- Change each 'foo' to 'bar' for all lines from the current line (.) to the last line ($) inclusive :.,$s/foo/bar/g
+   -- Change each 'foo' to 'bar' for the current line (.) and the two next lines (+2) :.,+2s/foo/bar/g
+   -- replace last search, works with *  :%s//replace/g
+   -- act on all lines that match a pattern, eg delete all blank lines> :g/^\s*$/d , use :g! to act on all lines that do not match
+   -- change content of "string" > ci" 
+** delete
+   -- delete between <>{}[]  > da< da{ da[
+   -- delete range :FROM,TOd
+   -- delete from here until the character x :dfx
+** auto
+   --macro q<key>MACROq , play @<key> , play last @@ 
+   --autocomplete Ctrl-n/Ctrl-p
+   --indent file> gg=G
+** system
+   -- keyboard
+   -- running shell commands on the current file> :%!<command> e.g. :%!grep --invert-match foo
+   -- if not enough priviledges %!sudo tee > /dev/null % 
+
+
+* IDTV
+** Set java version
+JAVA_HOME=$JAVA5;PATH=$JAVA5/bin:$PATH
+JAVA_HOME=$JAVA6;PATH=$JAVA6/bin:$PATH
+*** 1.5
+Windows Registry Editor Version 5.00
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\JavaSoft\Java Development Kit]
+"CurrentVersion"="1.5"
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\JavaSoft\Java Runtime Environment]
+"CurrentVersion"="1.5"
+
+*** 1.6
+Windows Registry Editor Version 5.00
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\JavaSoft\Java Development Kit]
+"CurrentVersion"="1.6"
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\JavaSoft\Java Runtime Environment]
+"CurrentVersion"="1.6"
+
+** run.bat bind ip address -Djboss.bind.address=10.0.204.57
+** OFFAIR set root/root1 password
+  in the offair db: 
+  UPDATE PRINCIPALS set password='8f8cc717a4040b695b56d335d4febf300a5b2ad4' WHERE principalid='root';
+** install new DB
+   - build sql package with build
+   - copy generated zip to psdev01 oracle/Oracle /home/oracle/software/idtvdb_install/CTR/ and unzip it
+   - IDTV3DU2
+   - cd iDTV-DBsetup_3.7...
+   - idtvdb_menu.ksh
+   - choose drop (all)
+   - and create (all)
+** count logged-in users
+*** show login logout
+select * from hdt3_syslog_audit where Upper(action) like 'LOG%' and LOG_TIME > to_date('2009-11-25','YYYY-MM-DD')
+*** count diff
+select SUM(login.login_nb) - SUM(logout.logout_nb) CURRENT_CONNEXIONS, login.username, login.host
+FROM
+    (select count(*) login_nb, action, username, host
+        from hdt3_syslog_audit
+        where ACTION = 'LOGIN'
+        AND log_time >= (SELECT MAX(LOG_TIME) FROM HDT3_SYSLOG_AUDIT where action = 'SERVER BOOTSTRAP')
+        GROUP BY action, username, host
+    ) login,
+    (select count(*) logout_nb, action, username, host
+        from HDT3_SYSLOG_AUDIT
+        where ACTION = 'LOGOUT'
+        AND log_time >= (SELECT MAX(LOG_TIME) FROM HDT3_SYSLOG_AUDIT where action = 'SERVER BOOTSTRAP')
+        GROUP BY action, username, host
+    ) logout
+WHERE login.username  = logout.username
+AND login.host  = logout.host
+GROUP BY login.username, login.host;
+
+** strip epg elements from an export file
+   perl -ne 's/.*?EpgElement.*//; s/.*?EpgDescription.*//; print if /[<>]/ && !/^$/' in.xml > out.xml
+** PermGen
+*** sweep classes (see [[http://stackoverflow.com/questions/3717937/cmspermgensweepingenabled-vs-cmsclassunloadingenabled][SO question)]] -XX:+CMSPermGenSweepingEnabled -XX:+CMSClassUnloadingEnabled
+*** increase permgen size -XX:PermSize=256m -XX:MaxPermSize=512m
+*** monitoring permgen
+   - getting jvm id: jps
+   - gettigng statistics: jstat -gcpermcapacity <jvm-id>
+*** analysis permgen with MAT using heapbin
+    - look for the duplicated classes;
+    - right-click on the most duplicated classes then select "Merge Shortest Paths to GC Roots" 
+      with option "exclude weak references". 
+    - This gives the list of object which prevent the permgen space to be reduced by class unloading
+
+* IST
+** create a new version
+   - Sofware component search IDTV
+   - Take Application server & GUI 
+   - Version graph choose a version and clone
+   - Set a new version number
+
+
+* Perl
+** To inspect the way the Perl parser sees the code: run perl with the flag -MO=Deparse
+
+
+* JVM memory tuning
+** Based on a [[http://www.infoq.com/presentations/JVM-Performance-Tuning-twitter-QCon-London-2012][presentation]] from a guy from Twitter 
+** run the JVM with -verbosegc and compare the memory before and after the gc
+** Guava MapMaker.makeMap() takes 2k but MapMaker.concurrencyLevel(1).makeMap() takes 300b
+The advantage of having concurrencyLevel 1 is that it never throws ConcurrentModificationException
+
+** Compressed object pointers are used automatically below of 30GB max memory
+** Rule of the thumb: give as much memory to the young generation as you can
+** Use -XX:+UseAdaptiveSizePolicy together with -XX:MaxGCPauseMillis=... and -XX:GCTimeRatio=...
+** Always start with tuning the young generation
+*** enable flags -XX:+PrintGCDetails, -XX:+PrintHeapAtGC, -XX:PrintTenuringDistribution 
+*** watch survivor sizes Young->Survival->OldGeneration. You have to determine desired survival sizes
+*** there is no young generation desired size. The bigger - the better
+*** -XX:+PrintHeapAtGC check % used. Should be below 100
+*** -XX:+PrintTenuringDistribution should display strongly (!) decling numbers. If not you probably have a memory leak
+*** Avoid Full GC stops
+** Split your service into several processes
+
+
+* Python
+** To have a python interpreter in emacs run M-x python-shell
+** install python and MySql use one of the following
+easy_install MySQL-python
+pip install MySQL-python
+
+** run with profile: python -m cProfile test.py
+
+
+* Git
+** git remove file completely
+git filter-branch --tree-filter 'rm -f filename' HEAD
+git push
+delete file 
+git commit -a -m "file removed"
+** How to avoid an error "22: bad file number" 
+it's necessary to modify a file .git/config. 
+Replace 
+
+[remote "origin"]
+	url = git@github.com:oleg-pavliv/Oleg.git
+
+with
+
+[remote "origin"]
+    url = https://oleg-pavliv@github.com/oleg-pavliv/Oleg.git
+
+
+* SOAP
+** test with a browser
+http://localhost:8080/axis2/services/StockQuoteService/operation?param1=value1&param2=value2
+
+** [[http://wanderingbarque.com/nonintersecting/2006/11/15/the-s-stands-for-simple/][funny article: s stands for simple]]
+
+* Maven
+** list of dependencies for each plugin
+mvn dependency:resolve-plugins
+mvn dependency:tree
+
+
+* Octave
+** Matrix
+  - element by element: mult A .* B, square A .^ 2, inverse 1 ./ A, A + 1 works as well
+  - transpose A'
+  - val = max(A), [val, ind] = max(A) value and index
+  - find(A < 3)
+  - magic(3), rand(3)
+  - [row, col] = find(A > 7)
+  - col-wise max(A,[],1) , row-wise max(A, [], 2)
+  - turn to vector A(:) 
+  - per col sum(A,1), per row sum(A,2)
+  - eye(3) id, A .* eye(3) keep only diag
+  - pinv(A) inverse
+
+** Plot
+   - x = [0:0.1:1] y = sin(x) plot(x,y)
+   - xlabel(time), legend('sin', 'cos')
+   - title('myplot')
+   - print -dpng 'myplot.png'
+   - A = magic(10); imagesc(A), colorbar, colormap gray;
+
+** control
+   - for i = 1:10, v(i) = 2*i; end;
+** functions
+   function y = square(x)
+      y = x^2;
+   function [y2,y3] = square_cube(x)
+      y2 = x^2;
+      y3 = x^3;
+

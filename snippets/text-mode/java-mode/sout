@@ -1,0 +1,3 @@
+#name: sout
+# --
+System.out.println("$0");

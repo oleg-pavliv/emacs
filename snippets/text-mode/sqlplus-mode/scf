@@ -1,0 +1,3 @@
+#name : scf
+# --
+select count(*) from $1dt3_$0

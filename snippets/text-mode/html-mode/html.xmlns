@@ -1,0 +1,20 @@
+#contributor : Jimmy Wu <frozenthrone88@gmail.com>
+#name : <html xmlns="...">...</html>
+# --
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="${1:en}" lang="${2:en}">
+    <head>
+        <title>$3</title>
+
+        <!--[if IE]>
+            <link rel="ie.css" href="url" type="text/css" media="screen" />
+        <![endif]-->
+        <!--[if !IE]>
+            <link rel="style.css" href="url" type="text/css" media="screen" />
+        <![endif]-->
+
+    </head>
+
+    <body>
+    $0
+    </body>
+</html>

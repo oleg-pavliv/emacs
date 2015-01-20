@@ -1,0 +1,2 @@
+set ORACLE_HOME
+put the file into %ORACLE_HOME%\network\admin

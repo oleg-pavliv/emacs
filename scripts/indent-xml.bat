@@ -1,0 +1,1 @@
+java -cp d:/Soft/java/xalan-j_2_7_1/xalan.jar;d:/Soft/java/xalan-j_2_7_1/serializer.jar;d:/Soft/java/xalan-j_2_7_1/xml-apis.jar;d:/Soft/java/xalan-j_2_7_1/xercesImpl.jar -Xms128m -Xmx1024m -Xss512k org.apache.xalan.xslt.Process -IN %1 -XSL u:\emacs\xsl\indent.xsl -OUT %~dpn1-i.xml

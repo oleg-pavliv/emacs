@@ -1,0 +1,9 @@
+name = 
+  (DESCRIPTION =
+    (ADDRESS_LIST =
+      (ADDRESS = (PROTOCOL = TCP)(HOST = psdev01)(PORT = 1522))
+    )
+    (CONNECT_DATA =
+      (SID = IDTV3DU2)
+    )
+  )
