@@ -1,10 +1,10 @@
 set drive=C:
 
-set emacs_home=%drive%\Soft\Emacs\emacs-24.3
+set emacs_home=%drive%\Soft\Emacs\emacs-24.5
 
 set dropbox=C:/oleg/Dropbox
 
-set cygwin_home=C:\cygwin
+set cygwin_home=c:/cygwin64
 set CYGWIN=nodosfilewarning 
 
 set utils=%drive%\utils
@@ -13,21 +13,26 @@ set path=%utils%;%cygwin_home%\bin;%utils%\7-Zip;%utils%\gnu-win32;%utils%\putty
 set PATH=c:/soft/Git/bin/;%ORACLE_HOME%\instantclient_11_2;%PATH%
 
 rem set CLASSPATH=%CLASSPATH%;%home%/emacs/bin;%home%/emacs/bin/blancosqlformatter-0.1.1.jar
-rem set CLASSPATH=%CLASSPATH%;%xalan_home%/xalan.jar;%xalan_home%/serializer.jar;%xalan_home%/xml-apis.jar;%xalan_home%/xercesImpl.jar
-set XALAN_HOME=c:/soft/xalan-j_2_7_1
+
+set XALAN_HOME=c:/soft/java/xalan-j_2_7_1
+set GRAPHVIZ_HOME=%utils%\graphviz-2.36
+set CLASSPATH=%CLASSPATH%;%xalan_home%/xalan.jar;%xalan_home%/serializer.jar;%xalan_home%/xml-apis.jar;%xalan_home%/xercesImpl.jar
 set CLASSPATH=%CLASSPATH%;%xalan_home%/*
 rem set CLASSPATH=%CLASSPATH%;%SAXON_HOME%/saxon9he.jar
 rem set CLASSPATH=%CLASSPATH%;%CXF_HOME%\lib\cxf-manifest.jar
 
 rem c:\utils\FtpUse\ftpuse.exe L: helablinux02 Customer /USER:operator
 
-set NAGRA=yes
+rem set NAGRA=yes
 set J2EP_DEBUG=c:\temp\j2ep_debug.log
 
 
-set JAVA_HOME=C:\java\jdk1.7.0_71
-set ANT_HOME=C:\ant\1.9NAGRA4.0
-PATH %JAVA_HOME%\bin;%ANT_HOME%\bin;%PATH%
+rem set JAVA_HOME=C:\java\jdk1.7.0_71
+rem set JAVA_HOME=C:\Soft\java\jdk1.6.0_43
+rem set JAVA_HOME=C:\Soft\java\jdk1.8.0_31
+
+rem set ANT_HOME=C:\ant\1.9NAGRA4.0
+rem PATH %JAVA_HOME%\bin;%ANT_HOME%\bin;%PATH%
 
 
 %emacs_home%\bin\runemacs.exe --debug-init

@@ -127,6 +127,12 @@
 (global-set-key (kbd "C-c k") 'browse-kill-ring)
 
 
+
+;; (require 'package)
+;; (add-to-list 'package-archives  '("melpa" . "http://melpa.org/packages/") t)
+
+(setq magit-last-seen-setup-instructions "1.4.0")
+
 ;; hl-tags-mode highlights html tags
 ;; a function hl-tags-show has been modified to use paren-face-match instead of show-paren-match-face
 ;; (require 'hl-tags-mode "~/emacs/addons/hl-tags-mode.el")
@@ -145,38 +151,25 @@
 (load-file (expand-file-name "~/emacs/addons/LRU-yank.el"))
 
 
-;; iedit change all occurences of a string
-(op:log "loading iedit")
-(load-file (expand-file-name "~/emacs/addons/iedit.el"))
-(define-key global-map (kbd "C-;") 'iedit-mode)
-(define-key isearch-mode-map (kbd "C-;") 'iedit-mode)
-
-
 ;; (add-to-list 'load-path "~/emacs/sanityinc-color-theme")
 ;; (require 'color-theme-sanityinc-tomorrow)
 
 
-;; (add-to-list 'load-path (concat (getenv "emacs_home") "/color-theme-6.6.0"))
-;; (load-file (concat (getenv "emacs_home") "/color-theme-6.6.0/color-theme.el"))
+;; (add-to-list 'load-path (concat (getenv "emacs_home") "/../color-theme-6.6.0"))
+;; (load-file (concat (getenv "emacs_home") "/../color-theme-6.6.0/color-theme.el"))
 ;; (require 'color-theme)
-;; (eval-after-load "color-theme"  '(progn  (color-theme-initialize) (color-theme-hober)))
-
+;; (eval-after-load "color-theme"  '(progn  (color-theme-initialize) (color-theme-mistyday)))
+;; (color-theme-parus)
+;; (color-theme-taming-mr-arneson)
+;; (color-theme-whateveryouwant)
 
 (load-file (expand-file-name "~/emacs/addons/bubble-buffer.el"))
-
-
 
 
 (when (string-equal "windows-nt" system-type)
   (op:log "loading eimp")
   ;; image manipulation program, uses mogrify
   (load-file (expand-file-name "~/emacs/addons/eimp.el")))
-
-;; (load-file (expand-file-name "~/emacs/ediff-trees.el"))
-;; (global-set-key (kbd "s-SPC") 'ediff-trees-examine-next)
-;; (global-set-key (kbd "S-s-SPC") 'ediff-trees-examine-previous)
-;; (global-set-key (kbd "C-s-SPC") 'ediff-trees-examine-next-regexp)
-;; (global-set-key (kbd "C-S-s-SPC") 'ediff-trees-examine-previous-regexp)
 
 
 (when (getenv "cygwin_home")
@@ -186,7 +179,6 @@
   (setenv "PATH" (concat (getenv "cygwin_home") "/bin;" (getenv "PATH")))
   (setq exec-path (cons (concat (getenv "cygwin_home") "/bin;") exec-path))
 )
-
 
 
 (op:log "loading init.el")
@@ -201,25 +193,12 @@
 (op:log "loading misc.el")
 (load-file (expand-file-name "~/emacs/misc.el"))
 
-;; (add-hook 'window-setup-hook
-;;           '(lambda() 
-;;             (progn 
-;;               (set-frame-position (selected-frame) 0 0)
-;;               (set-frame-height (selected-frame) 60)
-;;               (set-frame-width (selected-frame) 180))))
-
-
-;; (add-to-list 'default-frame-alist '(height . 60))
-;; (add-to-list 'default-frame-alist '(width . 180))
-;; (setq initial-frame-alist default-frame-alist)
-;; (setq special-display-frame-alist default-frame-alist)
-
-
 
 (op:log "loading sqlplus")
 (load-file (expand-file-name "~/emacs/addons/sqlplus.el"))
 (op:log "loading sqlplus-custom.el")
 (load-file (expand-file-name "~/emacs/sqlplus-custom.el"))
+
 
 (op:log "loading hideshow.el")
 (load-library "hideshow")
@@ -242,6 +221,12 @@
 				    "-mode-hook"))))
 	  (add-hook hook (lambda () (paredit-mode +1)))))
       '(emacs-lisp lisp inferior-lisp))
+
+
+;; add git to the path in emacs.bat
+(op:log "loading git-timemachine")
+(load-file (expand-file-name "~/emacs/addons/git-timemachine.el"))
+
 
 
 (when (getenv "NAGRA")

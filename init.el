@@ -94,6 +94,7 @@
 (when (string-equal "windows-nt" system-type)
   ;; (set-face-attribute 'default nil :family "Terminus")
   (set-face-attribute 'default nil :family "Andale Mono")
+  ;; (set-face-attribute 'default nil :family "Consolas")
   )
 
 
@@ -144,9 +145,8 @@
                                           (concat "gcc.exe -o "  exe " " src)))))
 
 
-(iswitchb-mode 1)
-(setq iswitchb-prompt-newbuffer nil) 
-;; (setq iswitchb-buffer-ignore '("^[[:blank:]]*\\*" "-cleartool"))
+;; (iswitchb-mode 1)
+;; (setq iswitchb-prompt-newbuffer nil) 
 
 (setq calendar-week-start-day 1
       calendar-intermonth-text '(propertize
@@ -249,7 +249,7 @@
 (when (string-equal "windows-nt" system-type) 
   ;;  (add-hook 'comint-output-filter-functions 'shell-strip-ctrl-m nil t)
   (add-hook 'comint-output-filter-functions 'comint-watch-for-password-prompt nil t)
-  (setq explicit-shell-file-name "C:/cygwin/bin/bash")
+  (setq explicit-shell-file-name (concat (getenv "CYGWIN_HOME") "/bin/bash") )
   (setq shell-file-name explicit-shell-file-name))
 
 (define-key global-map (kbd "C-c C-g") (lambda (arg) (interactive "P") (yas/exit-all-snippets)))
@@ -351,3 +351,16 @@
 ;; )
 
 
+
+
+;;
+
+(require 'ediff-vers)
+
+(define-key vc-prefix-map "=" (lambda ()
+            (interactive)
+            (if (equal 'dired-mode major-mode)
+                (dired-find-file))
+            (if (equal 'magit-status-mode major-mode)
+                (magit-visit-item))
+            (ediff-vc-internal "" "")))

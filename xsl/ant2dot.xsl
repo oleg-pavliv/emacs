@@ -538,7 +538,7 @@ strict digraph "<xsl:value-of select="$dot.graph.label"/>" {
 	];
 	
 	node [
-		fontsize=8,
+		fontsize=10,
 		fontcolor=black,
 		fontname=Courier,
 		shape=box,
@@ -548,7 +548,7 @@ strict digraph "<xsl:value-of select="$dot.graph.label"/>" {
 	];
 	
 	edge [
-		fontsize=6,
+		fontsize=10,
 		fontcolor=black,
 		fontname=Courier
 	];

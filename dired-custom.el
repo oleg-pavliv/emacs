@@ -264,18 +264,21 @@
   (op:xsl-transform (dired-get-file-for-visit) (concat (getenv "home") "/emacs/xsl/indent.xsl")))
 
 
-(defun op:ant-visualize-dependecies ()
-  (interactive)
+(defun op:ant-visualize-dependecies (neato)
+  (interactive "P")
   (let* ((in-file (dired-get-file-for-visit))
          (dot-file (concat in-file ".dot"))
-         (jpg-file (concat in-file ".jpg")))
+         (jpg-file (concat in-file ".jpg"))
+         (grvz-opts (if neato "-Gmodel=subset -Glayout=neato -Goverlap=false -Gsplines=true -Gpack=true -Gsep=0.1" "-Gratio=0.7")))
     (if (equal "xml" (file-name-extension in-file))
         (progn
           (op:xsl-transform in-file (concat (getenv "home") "/emacs/xsl/ant2dot.xsl") dot-file)
-          (shell-command (concat (getenv "GRAPHVIZ_HOME") "/bin/dot.exe -Gratio=0.7 -Tjpg -o " jpg-file " " dot-file))
+          (shell-command (concat (getenv "GRAPHVIZ_HOME") "/bin/dot.exe " grvz-opts " -Tjpg -o " jpg-file " " dot-file))
           (delete-file dot-file)
-          (find-file jpg-file))
+          ;; (find-file jpg-file)x
+          )
       (beep))))
+
 
 
 ;;------------------------------------------------ doc to txt -----------------------------------------------------------------------
@@ -388,19 +391,8 @@
 
 
 
-(defun op-i:open-file-head (lines &optional tail)
-  "open file head/tail"
-  (interactive "p")
-  (if (< lines 10) (setq lines 2000))
-  (let* ((file (dired-get-filename)) 
-         (ext (file-name-extension file))
-         (name (file-name-sans-extension (file-name-nondirectory file)))
-         (head (concat name (if tail "-tail." "-head.") ext)))
-    (shell-command (format "%s --lines=%i %s > %s" (if tail "tail" "head") lines file head))
-    (find-file head)))
 
+(define-key dired-mode-map (kbd "C-c g")  'magit-status)
 
-(define-key dired-mode-map (kbd "C-c h")  'op-i:open-file-head)
-(define-key dired-mode-map (kbd "C-c l")  (lambda (lines) (interactive "p") (op-i:open-file-head lines t)))
 
 

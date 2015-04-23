@@ -25,6 +25,9 @@ interrogate_mo_j2ep1 /helablinux02-oleg/j2ep-test-war_oleg/MOB_J2epTest setAttr_
 *** connect with filezilla to the machine using root/S***r and copy the file
 *** switch to su
 *** uncompress file.tar.Z
+** install application with nagra_install
+*** su - root
+*** /soft/ngesoft/nge1/CCTAgent/current/bin/nagra_install olegsoft oleg1 operator
 ** set debug log (put it into run.conf)
 J2EP_DEBUG=/tmp/jboss.log
 export J2EP_DEBUG
