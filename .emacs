@@ -228,6 +228,16 @@
 (load-file (expand-file-name "~/emacs/addons/git-timemachine.el"))
 
 
+(op:log "loading json-reformat")
+(load-file (expand-file-name "~/emacs/addons/json-reformat.el"))
+
+
+(op:log "loading json-snatcher")
+(load-file (expand-file-name "~/emacs/addons/json-snatcher.el"))
+
+(op:log "loading json-mode")
+(load-file (expand-file-name "~/emacs/addons/json-mode.el"))
+
 
 (when (getenv "NAGRA")
   (op:log "loading nagra.el")

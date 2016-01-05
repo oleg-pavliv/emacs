@@ -357,10 +357,18 @@
 
 (require 'ediff-vers)
 
+(defun op:find-file-if-necessary ()
+  (if (equal 'dired-mode major-mode)
+      (dired-find-file))
+  (if (equal 'magit-status-mode major-mode)
+      (magit-visit-item)))
+
 (define-key vc-prefix-map "=" (lambda ()
-            (interactive)
-            (if (equal 'dired-mode major-mode)
-                (dired-find-file))
-            (if (equal 'magit-status-mode major-mode)
-                (magit-visit-item))
-            (ediff-vc-internal "" "")))
+                                (interactive)
+                                (op:find-file-if-necessary)
+                                (ediff-vc-internal "" "")))
+
+(define-key vc-prefix-map "m" (lambda ()
+                                (interactive)
+                                (op:find-file-if-necessary)
+                                (git-timemachine)))

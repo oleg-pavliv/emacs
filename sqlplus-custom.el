@@ -34,25 +34,7 @@
 (setq *op:useful-queries* '())
 
 (push (list "epg field group" "select f.xid \"field.xid\", g.xid \"group.xid\", f.name \"field name\", g.name \"group\", data_class_name \"data_class_name\", is_editable \"edit?\", is_list \"list?\", is_localized \"loc?\", should_generate \"shld_gen?\" from dt3_epg_field f, dt3_epg_field_group g, dt3_epg_field_group_rel fg where f.xid = fg.epg_field_id and g.xid = fg.epg_field_group_id and lower(f.name) like '%rating%' order by f.xid;") *op:useful-queries*)
-(push (list "catalogue vod item count" "select lpad(' ', 2*(level - 1)) || c.name || '     ' || (select count(*) from hdt3_vod_vod_item vi, hdt3_vod_item_node_link l where l.vod_item_id = vi.xid and l.catalogue_id = c.xid) from dt3_vod_catalogue c start with c.parent_id is null connect by prior c.xid = c.parent_id;") *op:useful-queries*)
-(push (list "job step" "select st.xid \"step.xid\", j.xid \"job.xid\", vi.xid \"vi.xid\", vi.name, change_date, st.pos, st.status, step_version, stt.name, j.due_date \"due\", j.end_date \"end_date\" from dt3_wor_job_step st, dt3_wor_job_step_type stt, dt3_wor_job j, hdt3_vod_vod_item vi where st.type_id = stt.xid and st.job_id = j.xid and vi.xid = j.vod_item_id") *op:useful-queries*)
-(push (list "vi job" "select vi.xid \"vi.xid\", vi.name, j.xid, j.change_step_date, j.catalogue_node_id \"node_id\", j.class, j.device_lock_id \"lock_id\", j.due_date, j.end_date, j.status, j.version, j.workflow_status \"wf_status\" from dt3_wor_job j, hdt3_vod_vod_item vi where j.vod_item_id = vi.xid") *op:useful-queries*)
-
 (push (list "gen param" "select name, type \"type\", value \"value\" from dt3_gen_parameters  where lower(name) like '%%'") *op:useful-queries*)
-(push (list "gen maps" "select name, key \"key\", value \"value\" from dt3_gen_maps  where lower(name) like '%%'") *op:useful-queries*)
-(push (list "algo param set" "select m.xid \"meta.xid\", ps.xid \"ps.xid\", name \"ps.name\", algorithm_name, key, value, type, description, parent_algo_param_set_id from dt3_sys_algo_par_set_metadata m inner join dt3_sys_algo_par_set ps on m.algo_param_set_id = ps.xid where lower(algorithm_name) like '%opentv%';") *op:useful-queries*)
-
-(push (list "dev meta" "select d.xid \"dev.xid\", d.name \"dev.name\", m.xid, m.key, m.value  from dt3_sys_dev_metadata m, dt3_sys_device d where m.device_id = d.xid and lower(d.name) like '%pack%'") *op:useful-queries*)
-(push (list "vi meta" "select vi.xid \"vi.xid\", vi.name, vi.licensing_end_gmt, m.xid \"meta.xid\", m.key, m.value from hdt3_vod_vod_item_metadata m, hdt3_vod_vod_item vi where m.vod_item_id = vi.xid") *op:useful-queries*)
-
-(push (list "epg products" "select p.xid, p.name, p.public_id, p.business_product_type \"bpt\", p.cas_product_id \"cas_prid\", p.nominal_price \"price\", p.preview_time \"preview\", p.validty_start_date_gmt \"validty_start_date\", p.validity_end_date_gmt \"validity_end_date\", p.version \"version\" from hdt3_pro_product p inner join hdt3_pro_product_link pl on p.xid = pl.product_id inner join hdt3_sch_epg_slot s on s.xid = pl.epg_slot_id inner join dt3_cha_schedule c on s.schedule_channel_id = c.xid where s.start_date_gmt > to_date('2011-06-24','YYYY-MM-DD') and s.end_date_gmt < to_date('2011-12-31','YYYY-MM-DD') and c.short_name like '%%'") *op:useful-queries*)
-
-(push (list "update casid epg prod" "update hdt3_pro_product set cas_product_id = substr(public_id, 4, 7) where xid in (select p.xid from hdt3_pro_product p inner join hdt3_pro_product_link pl on p.xid = pl.product_id inner join hdt3_sch_epg_slot s on s.xid = pl.epg_slot_id inner join dt3_cha_schedule c on s.schedule_channel_id = c.xid where s.start_date_gmt > to_date('2011-06-24','YYYY-MM-DD') and s.end_date_gmt < to_date('2011-12-31','YYYY-MM-DD') and c.short_name like '%%')" ) *op:useful-queries*)
-
-(push (list "update last vod item meta" "update hdt3_vod_vod_item_metadata set value = '1' where xid = 
-  (select xid from hdt3_vod_vod_item_metadata where key = 'OpenTVDeletedDate' and vod_item_id = 
-        (select vod_item_id from hdt3_vod_vod_item_metadata where xid = (select max(xid) from hdt3_vod_vod_item_metadata)));\ncommit;") *op:useful-queries*)
-
 
 
 (define-key orcl-mode-map "\C-c\C-q" 
@@ -216,13 +198,18 @@
 
 
 
+(define-key orcl-mode-map "\C-c\C-o" 
+  (lambda () 
+    "get table constraints"
+    (interactive)
+    (op:sql-get-table-definition)))
+
 (define-key orcl-mode-map "\C-c\C-s" 
-  (lambda (full) 
+  (lambda () 
     "get table definition"
-    (interactive "P")
-    (if full
-        (op:sql-get-table-definition)
-      (message (mapconcat 'identity (op:sql-get-table-all-columns (upcase (thing-at-point 'symbol))) " ")))))
+    (interactive)
+    (message (mapconcat 'identity (op:sql-get-table-all-columns (upcase (thing-at-point 'symbol))) " "))))
+
 
 
 ;; grobal variable because op:sql-try-expand-column can be called multiple times
@@ -518,167 +505,5 @@ columns is a column list buf is the current buffer from-where is a from where cl
 
 
 
-;; (push '("hdt3_epg_data" . (
-;;                            ("data" "data")
-;;                            ("field_id" "field_id")
-;;                            ("locale_id" "locale_id")
-;;                            ("owner_id" "owner_id")
-;;                            ("pos" "pos")
-;;                            ("version" "version")
-;;                            )) *op:sql-map-useful-columns*)
 
 
-(push '("dt3_epg_field" . (
-                           ("data_class_name" "data_class_name") 
-                           ("is_editable" "edit?") 
-                           ("is_list" "list?") 
-                           ("is_localized" "loc?") 
-                           ("should_generate" "shld_gen?") 
-                           )) *op:sql-map-useful-columns*)
-
-
-(push '("dt3_ast_asset" . (
-                           ("asset_data_id" "data_id") 
-                           ("asset_size" "size") 
-                           ("cas_content_id" "cas_cnt_id") 
-                           ("content_id" "cnt_id") 
-                           ("duration" "duration") 
-                           ("format" "format") 
-                           ("location" "location") 
-                           ("storage_device_id" "device_id") 
-                           ("transmission_tag" "trsm_tag") 
-                           ("type" "type") 
-                           ("version" "version") 
-                           )) *op:sql-map-useful-columns*)
-
-
-
-
-(push '("dt3_exp_exported_object" . (
-                                     ("end_validity_date" "end_validity_date") 
-                                     ("export_context" "export_context") 
-                                     ("export_name" "export_name") 
-                                     ("last_access_date" "last_access_date") 
-                                     ("referenced_object_class" "referenced_object_class") 
-                                     ("referenced_object_id" "ref_id") 
-                                     ("start_validity_date" "start_validity_date") 
-                                     )) *op:sql-map-useful-columns*)
-
-
-(push '("dt3_con_content" . (
-                             ("approx_duration" "duration") 
-                             ("class" "class") 
-                             ("owner_id" "owner_id") 
-                             ("type_subtype_list" "type_subtype_list") 
-                             ("version" "version") 
-                             )) *op:sql-map-useful-columns*)
-
-
-(push '("dt3_vod_catalogue" . (
-                               ("catalogue_id" "ctlg_id") 
-                               ("catalogue_node_type" "node_type") 
-                               ("company_id" "company_id") 
-                               ("is_obsolete" "obslt?") 
-                               ("is_technical" "tech?") 
-                               ("next_id" "next_id") 
-                               ("nodetype" "nodetype") 
-                               ("parent_id" "parent_id") 
-                               ("previous_id" "previous_id") 
-                               ("product_id" "product_id") 
-                               ("type" "type") 
-                               ("version" "version") 
-                               ("modification_date" "modifi_date") 
-                               ("hidden" "hidden") 
-                               )) *op:sql-map-useful-columns* )
-
-
-(push '("hdt3_sch_programme_slot" . (
-                                     ("end_date_gmt" "end_date_gmt" "date-time") 
-                                     ("fixed_start_date_gmt" "fixed_start_date_gmt" "date-time")
-                                     ("pattern_id" "pattern_id") 
-                                     ("schedule_channel_id" "channel_id")
-                                     ("start_date_gmt" "start_date_gmt" "date-time") 
-                                     )) *op:sql-map-useful-columns*)
-
-(push '("dt3_gen_maps" . (
-                          ("key" "key")
-                          ("value" "value")
-                          )) *op:sql-map-useful-columns*)
-
-
-(push '("dt3_gen_parameters" . (
-                                ("type" "type") 
-                                ("value" "value") 
-                                )) *op:sql-map-useful-columns*)
-
-
-(push '("hdt3_vod_vod_item" . (
-                               ("creation_date" "creation_date") 
-                               ("licensing_end_gmt" "licensing_end_gmt") 
-                               ("licensing_start_gmt" "licensing_start_gmt") 
-                               ("marketable_class" "mrktbl_cls") 
-                               ("preview_date_gmt" "preview_date_gmt") 
-                               ("version" "version") 
-                               ("video_content_id" "video_content_id") 
-                               ("hidden" "hdn?") 
-                               ("type" "type") 
-                               ("workflow_status" "wf_st")
-                               )) *op:sql-map-useful-columns*)
-
-
-
-(push '("hdt3_sch_epg_slot" .  (
-                                ("dvb_event_id" "dvb_id") 
-                                ("epg_created" "epg_created") 
-                                ("epg_field_group_id" "epg_fld_grp_id") 
-                                ("main_event_start_date_gmt" "main_start_date") 
-                                ("schedule_channel_id" "channel_id") 
-                                ("start_date_gmt" "start_date_gmt" "date-time") 
-                                ("end_date_gmt" "end_date_gmt" "date-time") 
-                                )) *op:sql-map-useful-columns*)
-
-
-(push '("hdt3_pro_product" . (
-                              ("business_product_type" "bpt") 
-                              ("cas_product_id" "cas_prid") 
-                              ("is_impulsive" "impl?") 
-                              ("is_ordering" "ordering?") 
-                              ("is_pay_per_time" "ppt?") 
-                              ("is_published" "publshd?") 
-                              ("is_special_ppv" "sppv?") 
-                              ("nominal_price" "price") 
-                              ("pay_mode" "pay_mode") 
-                              ("preview_time" "preview_time") 
-                              ("rental_duration" "rental") 
-                              ("sale_end_date_gmt" "sale_end_date") 
-                              ("sale_start_date_gmt" "sale_start_date") 
-                              ("selling_mode" "sell_md") 
-                              ("validity_end_date_gmt" "validity_end_date") 
-                              ("validty_start_date_gmt" "validty_start_date") 
-                              ("version" "version") 
-                              )) *op:sql-map-useful-columns*)
-
-
-
-
-(push '("hdt3_syslog_audit" . (
-                               ("action" "action")
-                               ("entity" "entity")
-                               ("host" "host")
-                               ("identifier" "identifier")
-                               ("log_time" "log_time" "date-time")
-                               ("primary_key" "primary_key")
-                               ("username" "username")
-                               )) *op:sql-map-useful-columns*)
-
-
-(push '("dt3_sys_device" . (
-                            ("active" "active")
-                            ("class" "class")
-                            ("ip_address" "ip_address")
-                            ("is_main" "is_main")
-                            ("main_id" "main_id")
-                            ("status" "status")
-                            ("type" "type")
-                            ("version" "version")
-                            )) *op:sql-map-useful-columns*)

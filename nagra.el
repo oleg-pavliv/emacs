@@ -7,6 +7,12 @@
 (load-file (expand-file-name "~/emacs/nagra-specific.el"))
 
 
+(set-register ?a "grunt serve:predist")
+(set-register ?b "mvn spring-boot:run")
+(set-register ?i "mvn install -Dmaven.test.skip=true")
+(set-register ?s "java -Dserver.port=8181 -agentlib:jdwp=transport=dt_socket,server=y,address=6006,suspend=n -jar hello-0.1.0.jar")
+(set-register ?j "java -Dserver.port=8181 -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=12345 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -jar hello-1.0-SNAPSHOT.jar")
+
 (set-register ?1 "find . -type d -name target -exec rm -r {} ';'")
 (set-register ?d (cons 'file (or (getenv "DOWNLOADS_DIR") "c:/Users/opavliv/Downloads/")))
 (set-register ?k (cons 'file (or (getenv "DESKTOP_DIR") "C:/Users/opavliv/Desktop/")))
@@ -192,46 +198,101 @@
       (bubble-buffer-next))))
 
 
-(defun op:43-jboss-nagra (&optional arg)
+(defun op:pds-tool2-spring-boot (&optional arg)
   (interactive "P")
-  (setenv "HOSTNAME" "helablinux01")
-  (setenv "SERVICE_NAME" "service_test")
-  (setenv "J2EP_DEBUG" "c:/temp/j2ep_internal.log")
-  (op:start-cmd-in-new-frame "c:/work/nagra/jboss/jboss_cct_test/current/bin" "run_dev.bat" arg)
-  )
-
-(defun op:eap-jboss (&optional arg)
-  (interactive "P")
-  (setenv "HOSTNAME" "helablinux01")
-  (setenv "SERVICE_NAME" "service_test")
-  (setenv "J2EP_DEBUG" "c:/temp/j2ep_internal.log")
-  (op:start-cmd-in-new-frame "c:/work/JBossEAP/jboss_cct_base/current/bin/" "run_dev.bat" arg)
+  (op:start-cmd-in-new-frame "c:/work/pds-tool2/" "c:/Soft/Java/apache-maven-3.3.3/bin/mvn" arg)
   )
 
 
-(defun op:rm-43-jboss-dir ()
-  (interactive)
-  (shell-command "taskkill /F /IM cmd.exe /T")
-  (delete-directory "c:/work/nagra/jboss/jboss_cct_test" t))
+;; <plugin>
+;;     <groupId>org.springframework.boot</groupId>
+;;     <artifactId>spring-boot-maven-plugin</artifactId>
+;;     <configuration>
+;;         <jvmArguments>
+;;             -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=6006 -Dserver.port=8181
+;;         </jvmArguments>
+;;     </configuration>
+;; </plugin>
 
-(defun op:rm-eap-jboss-dir ()
-  (interactive)
-  (shell-command "taskkill /F /IM cmd.exe /T")
-  (delete-directory "c:/work/JBossEAP/jboss_cct_base/" t))
-
-
-(defun op:jmeter ()
-  (interactive)
-  (start-process-shell-command "jmeter" nil "ant -f c:/p4_ws/JBossEAP_test/testing/jmeter/scripts/j2ep/test-suites/jmeter-suite-all.xml start-interactive-jmeter" ))
-
-
-;; (defun op:artifactory (&optional arg)
+;; (defun op:eap-jboss (&optional arg)
 ;;   (interactive "P")
-;;   (op:start-cmd-in-new-frame "c:/temp/artifactory-powerpack-2.5.0/bin" "artifactory.bat" arg))
+;;   (setenv "HOSTNAME" "helablinux01")
+;;   (setenv "SERVICE_NAME" "service_test")
+;;   (setenv "J2EP_DEBUG" "c:/temp/j2ep_internal.log")
+;;   (op:start-cmd-in-new-frame "c:/work/JBossEAP/jboss_cct_base/current/bin/" "run_dev.bat" arg)
+;;   )
 
-;; (defun op:tomcat ()
+(defun op:h2 ()
+  (interactive)
+  (op:shell-in-dir "c:/Soft/H2/bin/" "h2-bin")
+  (switch-to-buffer "h2-bin")
+  (comint-send-string (get-buffer-process "h2-bin") "./h2w.bat\n")
+  (run-at-time "3 sec" nil (lambda () (kill-buffer-quitly t)))
+  )
+
+
+(defun op:mongodb ()
+  (interactive)
+  (op:shell-in-dir "c:/Soft/mongodb-win32-x86_64-2008plus-2.4.14/bin/" "mongodb-bin")
+  (switch-to-buffer "mongodb-bin")
+  (comint-send-string (get-buffer-process "mongodb-bin") "./mongod.exe --setParameter textSearchEnabled=true  --dbpath c:/temp/mongo-data\n" )
+  )
+
+
+;; (defun op:rm-eap-jboss-dir ()
 ;;   (interactive)
-;;   (op:w32-shell-open "c:/soft/java/apache-tomcat-7.0.25/bin/startup.bat"))
+;;   (shell-command "taskkill /F /IM cmd.exe /T")
+;;   (delete-directory "c:/work/JBossEAP/jboss_cct_base/" t))
+
+
+;; (defun op:jmeter ()
+;;   (interactive)
+;;   (start-process-shell-command "jmeter" nil "ant -f c:/p4_ws/JBossEAP_test/testing/jmeter/scripts/j2ep/test-suites/jmeter-suite-all.xml start-interactive-jmeter" ))
+
+(defun op:tomcat (&optional arg)
+  (interactive "P")
+  (let ((old-current-dir default-directory))
+    (save-excursion ;; save-excursion is necessary to restore the default-directory. Otherwise it will be restored in another buffer
+
+      (setq default-directory "c:/Soft/Java/apache-tomcat-8.0.23/bin")
+      (op:send-cmd-to-shell "c:/Soft/Java/apache-tomcat-8.0.23/bin/shutdown.bat\n" "tomcat-shutdown")
+      (run-at-time "3 sec" nil (lambda () (kill-buffer-quitly t)))
+      (unless arg
+        (delete-directory "c:/Soft/Java/apache-tomcat-8.0.23/work/" t)
+        (make-directory "c:/Soft/Java/apache-tomcat-8.0.23/work/")
+        (delete-directory "c:/Soft/Java/apache-tomcat-8.0.23/logs/" t)
+        (make-directory "c:/Soft/Java/apache-tomcat-8.0.23/logs/" t)
+        (op:send-cmd-to-shell "c:/Soft/Java/apache-tomcat-8.0.23/bin/catalina.bat jpda start\n" "tomcat-startup")
+        (run-at-time "3 sec" nil (lambda () (kill-buffer-quitly t)))))
+    (setq default-directory old-current-dir)))
+
+
+(defun op:camunda ()
+  (interactive)
+  (let ((old-current-dir default-directory))
+    (save-excursion ;; save-excursion is necessary to restore the default-directory. Otherwise it will be restored in another buffer
+      (setq default-directory "c:/Soft/camunda/tomcat")
+      (op:send-cmd-to-shell "cd c:/Soft/camunda/tomcat\n./start-camunda.bat\n" "camunda-startup")
+    (setq default-directory old-current-dir)
+    ))
+  ;; ((op:w32-shell-open "c:/Soft/camunda/tomcat/start-camunda.bat")
+  (run-at-time "3 sec" nil (lambda () (kill-buffer-quitly t)))
+  )
+
+
+(defun op:camunda-eval ()
+  (interactive)
+  (let ((old-current-dir default-directory))
+    (save-excursion ;; save-excursion is necessary to restore the default-directory. Otherwise it will be restored in another buffer
+      (setq default-directory "c:/Soft/camunda-eval")
+      (op:send-cmd-to-shell "cd c:/Soft/camunda-eval\n./start-camunda.bat\n" "camunda-startup")
+    (setq default-directory old-current-dir)
+    ))
+  ;; ((op:w32-shell-open "c:/Soft/camunda/tomcat/start-camunda.bat")
+  (run-at-time "3 sec" nil (lambda () (kill-buffer-quitly t)))
+  )
+
+
 
 
 (provide 'nagra)

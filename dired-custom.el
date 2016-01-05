@@ -259,9 +259,18 @@
         (setq output-file (concat (file-name-directory xml) "tranformed-" (file-name-nondirectory xml))))
       (shell-command (format cmd xml xsl output-file)))))
 
-(defun op:xsl-indent ()
+;; (defun op:xsl-indent ()
+;;   (interactive)
+;;   (op:xsl-transform (dired-get-file-for-visit) (concat (getenv "home") "/emacs/xsl/indent.xsl")))
+
+(defun op:xml-indent ()
   (interactive)
-  (op:xsl-transform (dired-get-file-for-visit) (concat (getenv "home") "/emacs/xsl/indent.xsl")))
+  (let* ((in (dired-get-file-for-visit))
+         (out (concat (file-name-directory in) "fmt-" (file-name-nondirectory in)))
+         (tidy-dir (concat (getenv "utils") "/jtidy-r938/")))
+    (shell-command (concat "java -jar " tidy-dir "jtidy-r938.jar -config " tidy-dir "jtidy.properties " in " > " out))
+    ))
+  
 
 
 (defun op:ant-visualize-dependecies (neato)
