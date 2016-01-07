@@ -57,6 +57,25 @@ openssl pkcs12 -in certname.pfx -nokeys -out cert.pem
 openssl rsa -in key.pem -out server.key 
 
 
+* MongoDB
+** current operations
+mongo -u admin -p adminpwd --authenticationDatabase admin
+show dbs
+use <db>
+show collections
+db.profile.find({}, {dateStart: 1, title:1})
+** backup openshift 2
+ssh [app-name]
+cd /tmp
+mongodump --host $OPENSHIFT_MONGODB_DB_HOST:$OPENSHIFT_MONGODB_DB_PORT --username $OPENSHIFT_MONGODB_DB_USERNAME --password $OPENSHIFT_MONGODB_DB_PASSWORD
+zip -r dump.zip dump
+exit
+scp [app-name]:/tmp/dump.zip c:/temp/mongodump/
+cd c:/temp/mongodump
+unzip dump.zip -d dump
+mongorestore dump
+
+
 * Perforce
 ** Label creation
    - New label Ctrl-N focus on label's window

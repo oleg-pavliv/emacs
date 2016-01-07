@@ -233,10 +233,18 @@
 
 (defun op:mongodb ()
   (interactive)
-  (op:shell-in-dir "c:/Soft/mongodb-win32-x86_64-2008plus-2.4.14/bin/" "mongodb-bin")
-  (switch-to-buffer "mongodb-bin")
-  (comint-send-string (get-buffer-process "mongodb-bin") "./mongod.exe --setParameter textSearchEnabled=true  --dbpath c:/temp/mongo-data\n" )
-  )
+  (let ((mongo-data-dir default-directory))
+    (if (not (file-directory-p (concat mongo-data-dir "journal")))
+        (message "Not a mongo data directory !")
+      (message "Starting mongo")
+      (op:shell-in-dir "c:/Soft/mongodb-win32-x86_64-2008plus-2.4.14/bin/" "mongodb-bin")
+      (switch-to-buffer "mongodb-bin")
+      (comint-send-string (get-buffer-process "mongodb-bin") (concat  "./mongod.exe --setParameter textSearchEnabled=true  --dbpath " mongo-data-dir "\n"))
+      (op:shell-in-dir "c:/Soft/mongodb-win32-x86_64-2008plus-2.4.14/bin/" "mongo-shell")
+      (switch-to-buffer "mongo-shell")
+      (comint-send-string (get-buffer-process "mongo-shell") "./mongo\n")
+      )
+    ))
 
 
 ;; (defun op:rm-eap-jboss-dir ()
