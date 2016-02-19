@@ -8,7 +8,6 @@
 
 
 (set-register ?a "grunt serve:predist")
-(set-register ?b "mvn spring-boot:run")
 (set-register ?i "mvn install -Dmaven.test.skip=true")
 (set-register ?s "java -Dserver.port=8181 -agentlib:jdwp=transport=dt_socket,server=y,address=6006,suspend=n -jar hello-0.1.0.jar")
 (set-register ?j "java -Dserver.port=8181 -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=12345 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -jar hello-1.0-SNAPSHOT.jar")
@@ -247,6 +246,17 @@
     ))
 
 
+
+
+(defun op:nginx ()
+  (interactive)
+  (shell-command "taskkill /F /IM nginx.exe /T")
+  (op:shell-in-dir "c:/Soft/nginx-1.9.11/"  "nginx-shell")
+  (switch-to-buffer "nginx-shell")
+  (comint-send-string (get-buffer-process "nginx-shell") "./nginx.exe\n")
+  (run-at-time "3 sec" nil (lambda () (kill-buffer-quitly t))))
+
+
 ;; (defun op:rm-eap-jboss-dir ()
 ;;   (interactive)
 ;;   (shell-command "taskkill /F /IM cmd.exe /T")
@@ -279,10 +289,10 @@
   (interactive)
   (let ((old-current-dir default-directory))
     (save-excursion ;; save-excursion is necessary to restore the default-directory. Otherwise it will be restored in another buffer
-      (setq default-directory "c:/Soft/camunda/tomcat")
-      (op:send-cmd-to-shell "cd c:/Soft/camunda/tomcat\n./start-camunda.bat\n" "camunda-startup")
-    (setq default-directory old-current-dir)
-    ))
+      (setq default-directory "c:/Soft/camunda/tomcat-7.4.0/")
+      (op:send-cmd-to-shell "cd c:/Soft/camunda/tomcat-7.4.0/\n./start-camunda.bat\n" "camunda-startup")
+      (setq default-directory old-current-dir)
+      ))
   ;; ((op:w32-shell-open "c:/Soft/camunda/tomcat/start-camunda.bat")
   (run-at-time "3 sec" nil (lambda () (kill-buffer-quitly t)))
   )
@@ -294,8 +304,8 @@
     (save-excursion ;; save-excursion is necessary to restore the default-directory. Otherwise it will be restored in another buffer
       (setq default-directory "c:/Soft/camunda-eval")
       (op:send-cmd-to-shell "cd c:/Soft/camunda-eval\n./start-camunda.bat\n" "camunda-startup")
-    (setq default-directory old-current-dir)
-    ))
+      (setq default-directory old-current-dir)
+      ))
   ;; ((op:w32-shell-open "c:/Soft/camunda/tomcat/start-camunda.bat")
   (run-at-time "3 sec" nil (lambda () (kill-buffer-quitly t)))
   )

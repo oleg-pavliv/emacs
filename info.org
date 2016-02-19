@@ -59,11 +59,48 @@ openssl rsa -in key.pem -out server.key
 
 * MongoDB
 ** current operations
+mongo -u $MONGODB_USER -p $MONGODB_PASSWORD $MONGODB_SERVICE_HOST:$MONGODB_SERVICE_PORT/$MONGODB_DATABASE
 mongo -u admin -p adminpwd --authenticationDatabase admin
+mongo -u admin -p adminpwd 172.30.126.139:27017/admin
 show dbs
 use <db>
 show collections
 db.profile.find({}, {dateStart: 1, title:1})
+** export all collections
+--- export 
+
+#!/bin/bash
+
+user=admin
+host=127.8.239.2
+password=By4AwuuFCaNu
+
+if [ ! $1 ]; then
+        echo " Example of use: $0 database_name [dir_to_store]"
+        exit 1
+fi
+db=$1
+out_dir=$2
+
+if [ ! $out_dir ]; then
+        out_dir="./"
+else
+        mkdir -p $out_dir
+fi
+
+tmp_file="fadlfhsdofheinwvw.js"
+echo "print('_ ' + db.getCollectionNames())" > $tmp_file
+cols=`mongo  -u $user -p $password --host $host $db $tmp_file | grep '_' | awk '{print $2}' | tr ',' ' '`
+for c in $cols
+do
+    mongoexport  -u $user -p $password --host $host -d $db -c $c -o "$out_dir/exp_${db}_${c}.json"
+done
+rm $tmp_file
+
+-- import 
+
+for file in *.json; do c=${file#*exp_yourdbname_}; c=${c%.json}; mongoimport --db yourdbname --collection "${c}" --file "${file}"; done
+
 ** backup openshift 2
 ssh [app-name]
 cd /tmp
@@ -96,8 +133,11 @@ j2ep.base.ivy.dir=c:/p4_ws/local-repository/work-ivy
 * LDAP
 ** List users in a group 
 (&(objectClass=user)(memberOf=CN=ITCOM_PRIVILEGED,OU=Groups Global,OU=Enterprise,DC=hq,DC=k,DC=grp))
+(&(objectClass=user)(memberOf=CN=.IT Middleware,OU=Distribution Lists,OU=Enterprise,DC=hq,DC=k,DC=grp))
 ** List groups for a user
 (&(objectCategory=group)(member=CN=Pavliv Oleg,OU=Cheseaux,OU=Users,OU=Enterprise,DC=hq,DC=k,DC=grp))
+** deprovisioned
+tree OU=Deprovisioned,OU=Enterprise,DC=hq,DC=k,DC=grp
 
 
 * Shell
@@ -171,10 +211,88 @@ sudo systemctl restart docker
 * Openshift
 ** [[https://github.com/openshift/training][Openshift training]]
 ** [[https://docs.openshift.com/enterprise/3.1/install_config/][Openshift install]]
+** Stale file handle
+sudo umount -f /data/pvolume
+sudo umount -l /data/pvolume
+sudo mount /data/pvolume
+** Linux commands
+dig it-middleware-artifact.hq.k.grp
+dig it-middleware-artifact.hq.k.grp@10.0.92.180
+tcpdump -i ens32 udp port 53 -w /tmp/$(hostname)_vxlan_dns.pcap
+traceroute
+systemctl status nfs
+*** exports 
+/etc/exports
+if modified run both
+$ exportfs -r
+$ exportfs -a
+** User mgmt
+sudo oc describe clusterPolicyBindings :default 
+oc get users,identity
+oc describe clusterPolicy default
+** Useful files
+/etc/origin/master/master-config.yaml 
+/etc/resolv.conf
+/etc/sysconfig/docker
+** Logs
+sudo journalctl -u atomic-openshift-master >   /tmp/openshift-master.log
+sudo journalctl -u atomic-openshift-node >   /tmp/openshift-node.log
+ssh user@node
+sudo journalctl -u atomic-openshift-node.service >/tmp/node-service.log
+sudo journalctl -u docker.service  >/tmp/docker-service.log
 
+sudo oc get pod -n default
+sudo oc logs <registry-podname> -n default
+
+sosreport -e docker -k docker.all=on
+** master commands
+*** check registry
+sudo oc volume --list dc/docker-registry
+sudo oc volume --list pod/docker-registry-2-rwed5
+*** restart registry
+BEFORE
+$ sudo oadm manage-node  chx-osh-01.hq.k.grp  --schedulable=true
+$ sudo vi /etc/origin/master/master-config.yaml
+set defaultNodeSelector: ""
+$ sudo systemctl restart atomic-openshift-master
+
+two solutions:
+- stop the registry and it should be restarted automatically
+$ sudo oc get pod -n default
+$ sudo oc stop pod <registy-pod>
+
+- scale down/up the rc
+$ sudo oc scale rc <docker-registry-rc> --replicas=0
+$ sudo oc scale rc <docker-registry-rc> --replicas=1
+
+you may also delete rc and redeploy it
+$ sudo oc delete rc <docker-registry-rc>
+$ sudo oc get dc
+$ sudo oc deploy <docker-registry>
+
+
+AFTER
+$ sudo oadm manage-node  chx-osh-01.hq.k.grp  --schedulable=false
+$ sudo vi /etc/origin/master/master-config.yaml
+set defaultNodeSelector: "region=test"
+$ sudo systemctl restart atomic-openshift-master
+
+** Node commands
+sudo systemctl restart docker
+sudo oc get nodes
+sudo oadm manage-node chx-osh-03.hq.k.grp chx-osh-04.hq.k.grp chx-osh-06.hq.k.grp chx-osh-07.hq.k.grp --list-pods
+sudo oadm prune
+*** node config /etc/origin/node/node-config.yaml
+when doing modification restart with sudo systemctl restart atomic-openshift-node
+** Project commands
+sudo oc status itcom-jolokia
+sudo oc get all
+sudo oc get pods -o wide
+sudo oc get pod | grep Running | awk '{print $1}' | xargs sudo oc describe pod | grep -P '^Name:|IP:'
 
 * Git
 ** store password permanently: git console $git config --global credential.helper store
+
 
 * GitBlit
 ** Change user account type: adminopa@chx-webapp-01$ sudo vim  /nfs/repo_git/users.conf
@@ -185,6 +303,7 @@ sudo systemctl restart docker
 sudo vim /etc/default/grub and change the line #GRUB_GFXMODE=640x480 to something like this GRUB_GFXMODE=1152x864
 sudo update-grub
 sudo reboot
+
 
 * JBOSS
 ** Memory settings
