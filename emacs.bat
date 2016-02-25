@@ -22,6 +22,8 @@ rem set CLASSPATH=%CLASSPATH%;%SAXON_HOME%/saxon9he.jar
 rem set CLASSPATH=%CLASSPATH%;%CXF_HOME%\lib\cxf-manifest.jar
 
 rem c:\utils\FtpUse\ftpuse.exe L: helablinux02 Customer /USER:operator
+c:\utils\FtpUse\ftpuse.exe O: chx-osh-01 opaadmin /USER:adminopa
+
 
 set NAGRA=yes
 rem set J2EP_DEBUG=c:\temp\j2ep_debug.log

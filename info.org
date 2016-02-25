@@ -99,7 +99,7 @@ rm $tmp_file
 
 -- import 
 
-for file in *.json; do c=${file#*exp_yourdbname_}; c=${c%.json}; mongoimport --db yourdbname --collection "${c}" --file "${file}"; done
+for file in *.json; do c=${file#*exp_ITCOM_}; c=${c%.json}; mongoimport  -u admin -p adminpwd --authenticationDatabase admin  --db ITCOM --collection "${c}" --file "${file}"; done
 
 ** backup openshift 2
 ssh [app-name]
@@ -252,9 +252,6 @@ sudo oc volume --list pod/docker-registry-2-rwed5
 *** restart registry
 BEFORE
 $ sudo oadm manage-node  chx-osh-01.hq.k.grp  --schedulable=true
-$ sudo vi /etc/origin/master/master-config.yaml
-set defaultNodeSelector: ""
-$ sudo systemctl restart atomic-openshift-master
 
 two solutions:
 - stop the registry and it should be restarted automatically
@@ -273,9 +270,6 @@ $ sudo oc deploy <docker-registry>
 
 AFTER
 $ sudo oadm manage-node  chx-osh-01.hq.k.grp  --schedulable=false
-$ sudo vi /etc/origin/master/master-config.yaml
-set defaultNodeSelector: "region=test"
-$ sudo systemctl restart atomic-openshift-master
 
 ** Node commands
 sudo systemctl restart docker
@@ -284,11 +278,77 @@ sudo oadm manage-node chx-osh-03.hq.k.grp chx-osh-04.hq.k.grp chx-osh-06.hq.k.gr
 sudo oadm prune
 *** node config /etc/origin/node/node-config.yaml
 when doing modification restart with sudo systemctl restart atomic-openshift-node
+*** restarting
+sudo systemctl restart docker
+sudo systemctl restart atomic-openshift-node
+
+sudo service nfs restart
 ** Project commands
 sudo oc status itcom-jolokia
 sudo oc get all
 sudo oc get pods -o wide
 sudo oc get pod | grep Running | awk '{print $1}' | xargs sudo oc describe pod | grep -P '^Name:|IP:'
+
+** Big buffer router (single sign on)
+https://access.redhat.com/support/cases/#/case/01587424
+
+I did the following even if it was not in the case.
+Create directory and put the file haproxy-config.template in it. 
+The file can be found in [[https://github.com/openshift/origin/blob/master/images/router/haproxy/conf/haproxy-config.template%20][github openshift]]
+/var/lib/haproxy/conf/haproxy-config.template
+
+
+$ sudo oc project default
+$ sudo oc edit dc router
+
+check the value of 'image'. Use it later in oc new-build command
+
+$ oc project openshift
+
+$ oc new-build --name=router-big-buff -D - <<EOF
+FROM registry.access.redhat.com/openshift3/ose-haproxy-router:v3.1.1.6 # use the value of image from dc router
+RUN sed -i -e 's/global/global\\n  maxconn\ 1024\\n  tune.bufsize 64000/' /var/lib/haproxy/conf/haproxy-config.template
+EOF
+
+Wait for build to finish. It is possible to see how process is going with "oc logs -f bc/router-big-buff". it takes some time for build to start, so this command could not work right after previous one - just wait few moment.
+
+Check how image is named:
+$ oc get is -n openshift | grep router-big-buff
+router-big-buff                       172.30.49.189:5000/openshift/router-big-buff                                   latest                                     10 minutes ago
+
+switch to default project
+$ oc project default
+
+
+$ sudo oadm manage-node  chx-osh-01.hq.k.grp  --schedulable=true
+
+Edit router deployment config
+$ oc edit dc router
+
+Replace link to original image. in my example it is "172.30.49.189:5000/openshift/router-big-buff:latest"
+
+New deployment should start automatically
+$ oc get rc
+
+$ sudo oadm manage-node  chx-osh-01.hq.k.grp  --schedulable=false
+
+** Remote debug
+$ sudo oc edit service restapi -o json
+
+# port should be in a range 30000-32767
+            {
+                "name": "31006-tcp",
+                "protocol": "TCP",
+                "port": 31006,
+                "targetPort": 31006,
+                "nodePort": 31006
+            }
+        "type": "NodePort",
+
+you can access the application by specifying chx-osh-07:31006 in the debugger
+
+
+
 
 * Git
 ** store password permanently: git console $git config --global credential.helper store
