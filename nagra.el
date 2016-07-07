@@ -269,18 +269,19 @@
 
 (defun op:tomcat (&optional arg)
   (interactive "P")
-  (let ((old-current-dir default-directory))
+  (let ((old-current-dir default-directory)
+        (tomcat-dir "c:/Soft/Java/apache-tomcat-8.0.32"))
     (save-excursion ;; save-excursion is necessary to restore the default-directory. Otherwise it will be restored in another buffer
 
-      (setq default-directory "c:/Soft/Java/apache-tomcat-8.0.23/bin")
-      (op:send-cmd-to-shell "c:/Soft/Java/apache-tomcat-8.0.23/bin/shutdown.bat\n" "tomcat-shutdown")
+      (setq default-directory (concat tomcat-dir "/bin"))
+      (op:send-cmd-to-shell (concat tomcat-dir "/bin/shutdown.bat\n") "tomcat-shutdown")
       (run-at-time "3 sec" nil (lambda () (kill-buffer-quitly t)))
       (unless arg
-        (delete-directory "c:/Soft/Java/apache-tomcat-8.0.23/work/" t)
-        (make-directory "c:/Soft/Java/apache-tomcat-8.0.23/work/")
-        (delete-directory "c:/Soft/Java/apache-tomcat-8.0.23/logs/" t)
-        (make-directory "c:/Soft/Java/apache-tomcat-8.0.23/logs/" t)
-        (op:send-cmd-to-shell "c:/Soft/Java/apache-tomcat-8.0.23/bin/catalina.bat jpda start\n" "tomcat-startup")
+        (delete-directory (concat tomcat-dir "/work/") t)
+        (make-directory (concat tomcat-dir "/work/"))
+        (delete-directory (concat tomcat-dir "/logs/") t)
+        (make-directory (concat tomcat-dir "/logs/") t)
+        (op:send-cmd-to-shell (concat tomcat-dir "/bin/catalina.bat jpda start\n") "tomcat-startup")
         (run-at-time "3 sec" nil (lambda () (kill-buffer-quitly t)))))
     (setq default-directory old-current-dir)))
 
