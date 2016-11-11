@@ -40,7 +40,17 @@ then AllTasks/export
 openssl pkcs12 -in certname.pfx -nocerts -out key.pem -nodes
 openssl pkcs12 -in certname.pfx -nokeys -out cert.pem
 openssl rsa -in key.pem -out server.key 
+** retrieve certificates from PKI
+1057 is the request id
+$ certreq -retrieve -config "chx-pkica-01\Kudelski Group Issuing CA 01" 1057 mycert.cer certchain.cer
+$ certreq -accept mycert.cer
+then it should be available in Chrome "Manage certificates"
 
+
+* Camunda
+[[http://localhost:8080/farr2/camunda-rest/engine/default/task/][list of tasks]]
+[[http://localhost:8080/farr2/camunda-rest/engine/default/task/?candidateGroup%3DDYN_USR_AdminXXX][list of tasks candidate group]]
+[[http://localhost:8080/farr2/camunda-rest/engine/default/task/?candidateUser%3Dadminopa][list of tasks candidate user]]
 
 * MongoDB
 ** current operations
@@ -121,10 +131,18 @@ public.evaluation.repo.loc=http://chx-artiprod-01:8081/artifactory/j2ep-jboss-7-
 j2ep.base.ivy.dir=c:/p4_ws/local-repository/work-ivy
 
 
+* SQL
+** insert image into DB
+$ xxd -p file.png | tr -d '\n' >file.hex
+update tbl_choice set icon = 0xcontent-of-file.hex where
+
+
 * LDAP
 ** List users in a group 
 (&(objectClass=user)(memberOf=CN=ITCOM_PRIVILEGED,OU=Groups Global,OU=Enterprise,DC=hq,DC=k,DC=grp))
 (&(objectClass=user)(memberOf=CN=.IT Middleware,OU=Distribution Lists,OU=Enterprise,DC=hq,DC=k,DC=grp))
+
+(&(objectCategory=user)(memberOf=cn=.IT Middleware,ou=Distribution Lists,dc=hq,dc=k,dc=grp))
 ** List groups for a user
 (&(objectCategory=group)(member=CN=Pavliv Oleg,OU=Cheseaux,OU=Users,OU=Enterprise,DC=hq,DC=k,DC=grp))
 ** deprovisioned
@@ -576,6 +594,8 @@ openssl rsa -noout -modulus -in certificate.key.pem
 * Git
 ** store password permanently: git console $git config --global credential.helper store
 
+** jgitflow merge conflict: merge manually master into dev
+
 
 * GitBlit
 ** Change user account type: adminopa@chx-webapp-01$ sudo vim  /nfs/repo_git/users.conf
@@ -622,6 +642,13 @@ function DumpObjectIndented(obj, indent)
 sudo vim /etc/default/grub and change the line #GRUB_GFXMODE=640x480 to something like this GRUB_GFXMODE=1152x864
 sudo update-grub
 sudo reboot
+
+
+* Camel
+** camel debug
+logging.level.org.apache.camel=DEBUG
+** dump sql
+logging.level.org.apache.camel.component.sql=TRACE
 
 
 * JBOSS
@@ -674,6 +701,7 @@ keytool -genkey -keystore server.keystore -storepass aTestPw2012 -keypass aTestP
 
 
 * Linux network
+monitor trafic: sudo tcpdump -i any |  awk '{ print gensub(/(.*)\..*/,"\\1","g",$3), $4, gensub(/(.*)\..*/,"\\1","g",$5) }'
 dig it-middleware-artifact.hq.k.grp
 dig it-middleware-artifact.hq.k.grp@10.0.92.180
 tcpdump -i ens32 udp port 53 -w /tmp/$(hostname)_vxlan_dns.pcap

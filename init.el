@@ -101,7 +101,7 @@
 (define-key (current-global-map) (kbd "C-c l") 'align)
 
 
-(setq op:grep-find-cmd "find . -path '*/target' -prune -o -type f -maxdepth 1 -print0 | xargs -0 -e grep -n ")
+(setq op:grep-find-cmd "find . -path '*/target' -prune -o -path '*/node_modules' -prune -o -path '*/.git' -prune -o -type f -maxdepth 1 -print0 | xargs -0 -e grep -n ")
 
 (defun fgr (term)
   (interactive
