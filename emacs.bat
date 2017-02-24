@@ -9,7 +9,7 @@ set utils=%drive%\onedrive\utils
 
 set path=%utils%;%cygwin_home%\bin;%utils%\7-Zip;%utils%\gnu-win32;%utils%\putty;%path%
 set PATH=%ORACLE_HOME%\instantclient_11_2;%PATH%
-set PATH=C:\Soft\Python27;%PATH%
+rem set PATH=C:\Soft\Python27;%PATH%
 
 rem set CLASSPATH=%CLASSPATH%;%home%/emacs/bin;%home%/emacs/bin/blancosqlformatter-0.1.1.jar
 rem set CLASSPATH=%CLASSPATH%;%xalan_home%/xalan.jar;%xalan_home%/serializer.jar;%xalan_home%/xml-apis.jar;%xalan_home%/xercesImpl.jar

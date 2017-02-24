@@ -47,10 +47,29 @@ $ certreq -accept mycert.cer
 then it should be available in Chrome "Manage certificates"
 
 
+* K2
+** register service account
+*** SmartObject Services
+ 
+- start as an admin C:\Program Files (x86)\K2 blackpearl\Bin\SmartObject Service Tester.exe
+
+- SQL server Service
+** test connection
+- C:/Install/test.udl
+- server-name,port PORT SHOULD BE SEPARATED BY A COMMA
+** alias
+- power shell ps> cliconfg
+
+
+* jenkins
+**  sudo su jenkins2
+
+
 * Camunda
 [[http://localhost:8080/farr2/camunda-rest/engine/default/task/][list of tasks]]
 [[http://localhost:8080/farr2/camunda-rest/engine/default/task/?candidateGroup%3DDYN_USR_AdminXXX][list of tasks candidate group]]
 [[http://localhost:8080/farr2/camunda-rest/engine/default/task/?candidateUser%3Dadminopa][list of tasks candidate user]]
+
 
 * MongoDB
 ** current operations
@@ -64,6 +83,7 @@ db.profile.find({}, {dateStart: 1, title:1})
 
 export myprofile
 mongoexport -u admin -p  u78W2SxHgBkU --host 127.10.203.2 --authenticationDatabase admin -d myprofilerestapi  -c profile -o "tmp/profile.json"
+db.createUser({user:"mjf-user", pwd:"pwd", roles:[{role:"readWrite", db:"mjf-dev"}] })
 ** export all collections
 --- export 
 
@@ -111,7 +131,6 @@ unzip dump.zip -d dump
 mongorestore dump
 ** start on jenkins
 sudo /opt/app/mongodb/mongodb-linux-x86_64-2.4.14/bin/mongod --setParameter textSearchEnabled=true --dbpath /opt/app/mongodb/data/db &
-** -
 
 
 * Perforce
