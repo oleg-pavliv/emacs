@@ -119,18 +119,18 @@ rm $tmp_file
 
 for file in *.json; do c=${file#*exp_ITCOM_}; c=${c%.json}; mongoimport  -u admin -p adminpwd --authenticationDatabase admin  --db ITCOM --collection "${c}" --file "${file}"; done
 
-** backup openshift 2
-ssh [app-name]
-cd /tmp
-mongodump --host $OPENSHIFT_MONGODB_DB_HOST:$OPENSHIFT_MONGODB_DB_PORT --username $OPENSHIFT_MONGODB_DB_USERNAME --password $OPENSHIFT_MONGODB_DB_PASSWORD
-zip -r dump.zip dump
-exit
-scp [app-name]:/tmp/dump.zip c:/temp/mongodump/
-cd c:/temp/mongodump
-unzip dump.zip -d dump
-mongorestore dump
+** restore openstack
+mongorestore -u mjf-user -p pwd --authenticationDatabase mjf-dev -d mjf-dev --dir ./ --drop
 ** start on jenkins
 sudo /opt/app/mongodb/mongodb-linux-x86_64-2.4.14/bin/mongod --setParameter textSearchEnabled=true --dbpath /opt/app/mongodb/data/db &
+** create user
+$ mongod --dbpath <path>
+$ mongo --port 27017
+  use mjf
+  db.createUser(  {  user: "mjf-user",  pwd: "password",   roles: [ "readWrite", "dbAdmin" ]  })
+restart mongob with auth
+$ mongod --dbpath <path> --auth
+$ mongo  --port 27017 -u "mjf-user" -p "password" --authenticationDatabase "mjf"
 
 
 * Perforce
