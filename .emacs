@@ -1,16 +1,29 @@
+
+;; Added by Package.el.  This must come before configurations of
+;; installed packages.  Don't delete this line.  If you don't want it,
+;; just comment it out by adding a semicolon to the start of the line.
+;; You may delete these explanatory comments.
+(package-initialize)
+
 (require 'time-stamp)
+
+(require 'virtualenvwrapper "~/emacs/addons/virtualenvwrapper.el")
+(venv-initialize-interactive-shells) ;; if you want interactive shell support
+(venv-initialize-eshell) ;; if you want eshell support
+(setq venv-location "~/envs/")
+
 
 ;; disable tramp to avoid delays in opening files
 (setq tramp-mode nil)
 
 (setq org-confirm-babel-evaluate nil)
 
-(add-to-list 'load-path (concat (getenv "home") "/emacs/addons"))
+(add-to-list 'load-path "~/emacs/addons")
 
 (toggle-uniquify-buffer-names)
 
 ;; log initialization time per file
-(let ((log-file (concat (getenv "TEMP") "/emacs.log")))
+(let ((log-file  "/tmp/emacs.log"))
   (if (file-exists-p log-file)
     (delete-file log-file)))
 
@@ -22,7 +35,7 @@
 (defun op:log (msg)
   (let ((wmsg (concat (time-stamp-string) "    " msg)))
     (message wmsg)
-    (write-string-to-file wmsg (concat (getenv "TEMP") "/emacs.log"))))
+    (write-string-to-file wmsg "/tmp/emacs.log" )))
 
 
 ;; fast moving on the page. press C-c SPC and a first letter of a word
@@ -32,6 +45,7 @@
 (require 'ace-jump-mode "~/emacs/addons/ace-jump-mode.el")
 (define-key global-map (kbd "C-c SPC") 'ace-jump-mode)
 
+(setq whitespace-line-column 100)
 
 ;; (op:log "loading undo-tree")
 ;; (require 'undo-tree "~/emacs/addons/undo-tree.el")
@@ -83,15 +97,30 @@
 (yas/load-directory yas/root-directory)
 
 
-;; (autoload 'php-mode "php-mode" "Major mode for editing php code." t)
-;; (add-to-list 'auto-mode-alist '("\\.php$" . php-mode))
-;; (add-to-list 'auto-mode-alist '("\\.inc$" . php-mode))
-;; (add-hook 'php-mode-hook '(lambda () (define-abbrev php-mode-abbrev-table "ex" "extends")))
-
-;;(require 'php-mode)
-
-
 ;;----------------------------------------------------------
+(require 'web-mode "~/emacs/addons/web-mode.el")
+(add-to-list 'auto-mode-alist '("\\.jsx$" . web-mode))
+(defadvice web-mode-highlight-part (around tweak-jsx activate)
+  (if (equal web-mode-content-type "jsx")
+      (let ((web-mode-enable-part-face nil))
+        ad-do-it)
+    ad-do-it))
+
+;;(flycheck-define-checker jsxhint-checker
+;;  "A JSX syntax and style checker based on JSXHint."
+
+;;  :command ("jsxhint" source)
+;;  :error-patterns
+;;  ((error line-start (1+ nonl) ": line " line ", col " column ", " (message) line-end))
+;;  :modes (web-mode))
+;;(add-hook 'web-mode-hook
+;;          (lambda ()
+;;            (when (equal web-mode-content-type "jsx")
+;;              ;; enable flycheck
+;;              (flycheck-select-checker 'jsxhint-checker)
+;;              (flycheck-mode))))
+
+
 ;; (load-file (expand-file-name "~/emacs/addons/multi-web-mode/multi-web-mode.el"))
 
 ;; (require 'multi-web-mode)
@@ -127,11 +156,13 @@
 (global-set-key (kbd "C-c k") 'browse-kill-ring)
 
 
-
 ;; (require 'package)
 ;; (add-to-list 'package-archives  '("melpa" . "http://melpa.org/packages/") t)
 
-(setq magit-last-seen-setup-instructions "1.4.0")
+;; (setq magit-last-seen-setup-instructions "1.4.0")
+(defadvice magit-show-commit (after magit-show-commit-and-maximize activate)
+  (delete-other-windows))
+
 
 ;; hl-tags-mode highlights html tags
 ;; a function hl-tags-show has been modified to use paren-face-match instead of show-paren-match-face
@@ -166,21 +197,6 @@
 (load-file (expand-file-name "~/emacs/addons/bubble-buffer.el"))
 
 
-(when (string-equal "windows-nt" system-type)
-  (op:log "loading eimp")
-  ;; image manipulation program, uses mogrify
-  (load-file (expand-file-name "~/emacs/addons/eimp.el")))
-
-
-(when (getenv "cygwin_home")
-  (op:log "loading cygwin")
-  (require 'cygwin-mount "~/emacs/addons/cygwin-mount.el")
-  (cygwin-mount-activate)
-  (setenv "PATH" (concat (getenv "cygwin_home") "/bin;" (getenv "PATH")))
-  (setq exec-path (cons (concat (getenv "cygwin_home") "/bin;") exec-path))
-)
-
-
 (op:log "loading init.el")
 (load-file (expand-file-name "~/emacs/init.el"))
 
@@ -194,10 +210,10 @@
 (load-file (expand-file-name "~/emacs/misc.el"))
 
 
-(op:log "loading sqlplus")
-(load-file (expand-file-name "~/emacs/addons/sqlplus.el"))
-(op:log "loading sqlplus-custom.el")
-(load-file (expand-file-name "~/emacs/sqlplus-custom.el"))
+; (op:log "loading sqlplus")
+; (load-file (expand-file-name "~/emacs/addons/sqlplus.el"))
+; (op:log "loading sqlplus-custom.el")
+; (load-file (expand-file-name "~/emacs/sqlplus-custom.el"))
 
 
 (op:log "loading hideshow.el")
@@ -239,18 +255,6 @@
 (load-file (expand-file-name "~/emacs/addons/json-mode.el"))
 
 
-(when (getenv "NAGRA")
-  (op:log "loading nagra.el")
-  (load-file (expand-file-name "~/emacs/nagra.el")))
-
-(when (getenv "NAGRA")
-  (op:log "loading p4")
-  (load-file (expand-file-name "~/emacs/addons/p4.el"))
-  (load-library "p4")
-  (op:log "loading p4-custom")
-  (load-file (expand-file-name "~/emacs/p4-custom.el")))
-
-
 ;; the following line adds op:sql-try-expand-column to the hippie expand. It is disabled now because sql-custom is not loaded
 ;; '(hippie-expand-try-functions-list (quote (op:sql-try-expand-column try-expand-dabbrev try-expand-dabbrev-all-buffers try-expand-dabbrev-from-kill try-complete-file-name-partially try-complete-file-name try-expand-all-abbrevs try-expand-list try-expand-line try-complete-lisp-symbol-partially try-complete-lisp-symbol)))
 
@@ -273,21 +277,40 @@
  '(dired-recursive-deletes (quote always))
  '(global-auto-revert-ignore-modes (quote (jboss-log-mode)))
  '(gutter-buffers-tab-visible-p nil)
- '(hippie-expand-try-functions-list (quote (try-expand-dabbrev try-expand-dabbrev-all-buffers try-expand-dabbrev-from-kill try-complete-file-name-partially try-complete-file-name try-expand-all-abbrevs try-expand-list try-expand-line try-complete-lisp-symbol-partially try-complete-lisp-symbol)))
+ '(hippie-expand-try-functions-list
+   (quote
+    (try-expand-dabbrev try-expand-dabbrev-all-buffers try-expand-dabbrev-from-kill try-complete-file-name-partially try-complete-file-name try-expand-all-abbrevs try-expand-list try-expand-line try-complete-lisp-symbol-partially try-complete-lisp-symbol)))
  '(line-move-visual nil)
  '(message-log-max 1000)
  '(org-agenda-remove-tags nil)
- '(org-agenda-sorting-strategy (quote ((agenda todo-state-up priority-down category-up) (todo priority-down category-keep) (tags priority-down category-keep) (search category-keep))))
+ '(org-agenda-sorting-strategy
+   (quote
+    ((agenda todo-state-up priority-down category-up)
+     (todo priority-down category-keep)
+     (tags priority-down category-keep)
+     (search category-keep))))
  '(org-agenda-tags-column -100)
  '(org-agenda-todo-keyword-format "%-12s")
  '(org-deadline-warning-days 0)
  '(org-drawers (quote ("PROPERTIES" "CLOCK" "code" "log" "config")))
  '(org-global-properties (quote (("Owner_ALL" . "oleg cme jml"))))
  '(org-startup-folded (quote content))
- '(org-tag-alist (quote ((#("oleg" 0 4 (face nil)) . 111) (#("delegated" 0 9 (face nil)) . 100))))
+ '(org-tag-alist
+   (quote
+    ((#("oleg" 0 4
+        (face nil))
+      . 111)
+     (#("delegated" 0 9
+        (face nil))
+      . 100))))
  '(org-tags-column 100)
- '(org-todo-keywords (quote ((sequence "TODO" "STANDBY" "DONE") (sequence "CANCELED") (sequence "POST-It" "TRASH"))))
+ '(org-todo-keywords
+   (quote
+    ((sequence "TODO" "STANDBY" "DONE")
+     (sequence "CANCELED")
+     (sequence "POST-It" "TRASH"))))
  '(pabbrev-global-mode-buffer-size-limit 10000)
+ '(package-selected-packages (quote (iedit elpy magit markdown-mode flycheck)))
  '(paren-match-face (quote paren-face-match))
  '(safe-local-variable-values (quote ((Package . common-lisp-user) (package . user))))
  '(split-width-threshold 120)
@@ -306,6 +329,10 @@
 
 
 (custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
  '(compilation-info ((((class color) (min-colors 88) (background dark)) (:foreground "Green4"))))
  '(completions-first-difference ((t (:inherit bold :foreground "Orange" :weight bold))))
  '(cursor ((t (:foreground "yellow"))))

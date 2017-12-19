@@ -401,7 +401,9 @@
 
 
 
-(define-key dired-mode-map (kbd "C-c g")  'magit-status)
+(define-key dired-mode-map (kbd "C-c g")  (lambda () (interactive)
+                                            (magit-status)
+                                            (delete-other-windows)))
 
 
 

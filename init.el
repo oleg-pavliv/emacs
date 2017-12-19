@@ -7,7 +7,7 @@
 ;;             (setq indent-tabs-mode nil
 ;;                   tab-width 2)))
 
-(add-to-list 'auto-mode-alist '("\\.m$" . octave-mode))
+;; (add-to-list 'auto-mode-alist '("\\.m$" . octave-mode))
 
 
 ;;backup files
@@ -20,7 +20,7 @@
 
 
 ;; is set because I dont use a default ls -l listing in dired and an error 'no file on this line' is thrown when I copy files in dired
-(setq directory-listing-before-filename-regexp "[CD\\*]*[[:blank:]]*[rwxd-]+[[:blank:]]+[0-9a-zA-Z.]+[[:blank:]]+[0-9-]+[[:blank:]]+[0-9-:]+[[:blank:]]+")
+;; (setq directory-listing-before-filename-regexp "[CD\\*]*[[:blank:]]*[rwxd-]+[[:blank:]]+[0-9a-zA-Z.]+[[:blank:]]+[0-9-]+[[:blank:]]+[0-9-:]+[[:blank:]]+")
 ;; (and
 ;;  (= 0 (string-match directory-listing-before-filename-regexp "  drwxrwxrwx       0 25-09-2012 14:48 scala-mode"))
 ;;  (= 38 (match-end 0))
@@ -36,15 +36,6 @@
 (zone-when-idle 600)
 ;; (setq zone-programs [zone-pgm-random-life])
 (setq zone-programs [zone-pgm-drip-fretfully])
-
-;; hide obsolete variables in emacs 23.3
-;; from http://stackoverflow.com/questions/5468952/how-do-i-hide-emacs-obsolete-variable-warnings
-(when (and (equal emacs-major-version 23) (equal emacs-minor-version 3))
-  (eval-after-load "bytecomp"
-    '(add-to-list 'byte-compile-not-obsolete-vars 'font-lock-beginning-of-syntax-function))
-  ;; tramp-compat.el clobbers this variable!
-  (eval-after-load "tramp-compat"
-    '(add-to-list 'byte-compile-not-obsolete-vars 'font-lock-beginning-of-syntax-function)))
 
 (add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p) ;; make script file executable
 
@@ -98,10 +89,12 @@
   )
 
 
+(define-key (current-global-map) (kbd "C-c C-w") 'whitespace-mode)
+
 (define-key (current-global-map) (kbd "C-c l") 'align)
 
 
-(setq op:grep-find-cmd "find . -path '*/target' -prune -o -path '*/node_modules' -prune -o -path '*/.git' -prune -o -type f -maxdepth 1 -print0 | xargs -0 -e grep -n ")
+(setq op:grep-find-cmd "find . -path '*/target' -prune -o -path '*/node_modules' -prune -o -path '*/__pycache__' -prune -o -path '*/frontend/dist' -prune -o -path '*/.git' -prune -o -type f -maxdepth 1 -print0 | xargs -0 -e grep -n ")
 
 (defun fgr (term)
   (interactive
@@ -152,18 +145,6 @@
       calendar-intermonth-text '(propertize
                                  (format "W%2d" (car (calendar-iso-from-absolute (calendar-absolute-from-gregorian (list month day year)))))
                                  'font-lock-face 'font-lock-function-name-face))
-
-(when (string-equal "windows-nt" system-type)
-
-  (setq dired-guess-shell-alist-user 
-        (list
-         (list "\\.zip$\\|\\.gz$\\|\\.tar$\\|\\.rar$\\|\\.jar$\\|\\.ear$\\|\\.aar$\\|\\.war$\\|\\.gzip$\\|\\.sar$\\|\\.bz2$" "7z x")))
-
-  (add-to-list 'exec-path (concat (getenv "utils") "/7-Zip"))
-  (setq archive-zip-extract '("7z" "x" "-so"))
-  (setq archive-zip-expunge '("7z" "d" "-tzip"))
-  (setq archive-zip-expunge '("7z" "d" "-ttar"))
-  )
 
 
 (setq dired-dwim-target t) ;; dired-do-copy checks if another dired buffer is present and put its dir as target
@@ -263,10 +244,6 @@
 
 ;; (define-key global-map "\M-t" 'transpose-lines)
 
-;; (when (string-equal "windows-nt" system-type)
-;;   (add-to-list 'exec-path (concat (getenv "PERL_HOME") "/bin")))
-
-(add-to-list 'exec-path (concat (getenv "utils") "/gnuplot/bin"))
 
 (cua-selection-mode 1)
 
@@ -362,6 +339,9 @@
       (dired-find-file))
   (if (equal 'magit-status-mode major-mode)
       (magit-visit-item)))
+
+
+(define-key vc-prefix-map "h" 'magit-log-buffer-file)
 
 (define-key vc-prefix-map "=" (lambda ()
                                 (interactive)
