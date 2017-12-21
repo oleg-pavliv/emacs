@@ -7,11 +7,6 @@
 
 (require 'time-stamp)
 
-(require 'virtualenvwrapper "~/emacs/addons/virtualenvwrapper.el")
-(venv-initialize-interactive-shells) ;; if you want interactive shell support
-(venv-initialize-eshell) ;; if you want eshell support
-(setq venv-location "~/envs/")
-
 
 ;; disable tramp to avoid delays in opening files
 (setq tramp-mode nil)
@@ -98,13 +93,13 @@
 
 
 ;;----------------------------------------------------------
-(require 'web-mode "~/emacs/addons/web-mode.el")
-(add-to-list 'auto-mode-alist '("\\.jsx$" . web-mode))
-(defadvice web-mode-highlight-part (around tweak-jsx activate)
-  (if (equal web-mode-content-type "jsx")
-      (let ((web-mode-enable-part-face nil))
-        ad-do-it)
-    ad-do-it))
+;; (require 'web-mode "~/emacs/addons/web-mode.el")
+;; (add-to-list 'auto-mode-alist '("\\.jsx$" . web-mode))
+;; (defadvice web-mode-highlight-part (around tweak-jsx activate)
+;;   (if (equal web-mode-content-type "jsx")
+;;       (let ((web-mode-enable-part-face nil))
+;;         ad-do-it)
+;;     ad-do-it))
 
 ;;(flycheck-define-checker jsxhint-checker
 ;;  "A JSX syntax and style checker based on JSXHint."
@@ -146,9 +141,16 @@
 (define-key ioccur-mode-map (kbd "<right>") nil)
 (define-key global-map (kbd "C-c i") 'ioccur)
 
-(op:log "loading stripes mode")
-(require 'stripes "~/emacs/addons/stripes.el")
+;; (op:log "loading stripes mode")
+;; (require 'stripes "~/emacs/addons/stripes.el")
 
+(op:log "loading stripes mode")
+(require 'fill-column-indicator "~/emacs/addons/fill-column-indicator.el")
+(setq fci-rule-column 100)
+(setq fci-rule-use-dashes 1)
+(setq fci-dash-pattern 0.1)
+(setq fci-rule-color "gray40")
+(add-hook 'python-mode-hook 'fci-mode)
 
 (op:log "loading browse-kill-ring")
 (load-file (expand-file-name "~/emacs/addons/browse-kill-ring.el"))
