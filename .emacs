@@ -40,6 +40,9 @@
 (require 'ace-jump-mode "~/emacs/addons/ace-jump-mode.el")
 (define-key global-map (kbd "C-c SPC") 'ace-jump-mode)
 
+(define-key global-map (kbd "C-<next>") 'ido-switch-buffer)
+(define-key global-map (kbd "C-<prior>") 'ido-switch-buffer)
+
 (setq whitespace-line-column 100)
 
 ;; (op:log "loading undo-tree")
@@ -128,6 +131,8 @@
 
 
 ;;----------------------------------------------------------
+
+(require 'csv-mode "~/emacs/addons/csv-mode.el")
 
 
 ;; (setq load-path (cons "~/emacs/addons/apel-10.8/" load-path))
@@ -417,11 +422,6 @@
  '(org-todo ((t (:foreground "Pink" :weight bold :height 0.4))))
  '(org-upcoming-deadline ((((class color) (min-colors 88) (background dark)) (:foreground "salmon4"))))
  '(org-warning ((t (:foreground "salmon1" :weight bold))))
- '(p4-depot-added-face ((t (:foreground "OliveDrab"))) t)
- '(p4-depot-branch-op-face ((t (:foreground "gold"))) t)
- '(p4-depot-deleted-face ((t (:foreground "brown"))) t)
- '(p4-diff-del-face ((t (:foreground "gray" :strike-through t))) t)
- '(p4-diff-ins-face ((t (:foreground "gray"))) t)
  '(paren-face-match ((((class color)) (:background "grey15"))))
  '(py-builtins-face ((t nil)) t)
  '(py-pseudo-keyword-face ((t (:inherit Font\ Lock\ Keyword\ Face))) t)

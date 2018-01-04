@@ -228,17 +228,6 @@
 ;; (op:nullify-movie-files "I:/movies/Lagutina/files.tvspas.ru/Video/Äåòñêèå" "C:/TEMP/test/ok.txt")
 
 
-(defun op-i:quit-ediff-without-confirmation ()
-  (interactive)
-  (let ((ediff-p4 (or (string-match "*P4[[:blank:]]" (buffer-name (ediff-get-buffer 'A)))
-                      (string-match "*P4[[:blank:]]" (buffer-name (ediff-get-buffer 'B))))))
-    (ediff-really-quit nil)
-    (when (not (equal 'sr-mode (op:buffer-mode))) ;; dont delete sunrize buffer
-      (delete-other-windows)
-      (unless ediff-p4
-        (kill-buffer-quitly)
-        (kill-buffer-other-window 1)))))
-
 (add-hook 'ediff-keymap-setup-hook (lambda ()
                                      (define-key ediff-mode-map (kbd "Q") 'op-i:quit-ediff-without-confirmation)
                                      ;; (define-key ediff-mode-map (kbd "l") (lambda ()

@@ -6,11 +6,6 @@ export HISTCONTROL=ignoredups
 export SHELLOPTS
 set -o igncr
 
-# function p4 {
-#     export PWD=`cygpath -wa .`
-#     /cygdrive/c/Program\ Files\ \(x86\)/Perforce/p4.exe $@
-# }
-           
 PS1='$PWD>'
 
 

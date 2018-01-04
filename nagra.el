@@ -16,20 +16,6 @@
 (set-register ?d (cons 'file (or (getenv "DOWNLOADS_DIR") "c:/Users/opavliv/Downloads/")))
 (set-register ?k (cons 'file (or (getenv "DESKTOP_DIR") "C:/Users/opavliv/Desktop/")))
 
-;; (set-register ?t '(file . "c:/temp/lysis/"))
-
-;; (defun op:java-version (version)
-;;   (interactive "nversion: ")
-;;   (when (equal 'shell-mode (op:buffer-mode))
-;;     (let ((cmd ""))
-;;       (cond
-;;        ((equal version 5) (setq cmd "JAVA_HOME=$JAVA5;PATH=$JAVA5/bin:$PATH") )
-;;        ((equal version 6) (setq cmd "JAVA_HOME=$JAVA6;PATH=$JAVA6/bin:$PATH") )
-;;        ((equal version 7) (setq cmd "JAVA_HOME=$JAVA7;PATH=$JAVA7/bin:$PATH") )
-;;        )
-;;       (insert (concat cmd "\n"))
-;;       (insert "java -version"))))
-
 
 (defun op:shell-in-dir(dir buf)
   (when (not (get-buffer buf))
@@ -85,27 +71,6 @@
     (goto-line line)))
 
 
-(defun op:perforce-ct-to-win (file)
-  (loop for el in *j2ep-dir-mapping* 
-        until (string-match (concat (car el) "\\(.*\\)") file) 
-        finally (return (concat (cdr el) (match-string 1 file)))))
-
-
-(defun op:win-file-to-perforce (file)
-  (loop for el in *j2ep-dir-mapping* 
-        until (string-match (concat (cdr el) "\\(.*\\)") file) 
-        finally (return (concat (car el) (match-string 1 file)))))
-
-(defun op:win-file-perforce-client-dir (file)
-  (let ((client-dir))
-    (loop for el in *j2ep-dir-mapping* 
-          until (string-match (concat (cdr el) "\\(.*\\)") file) 
-          finally (setq client-dir (cdr el)))
-    (if (file-exists-p (concat client-dir "p4config.txt"))
-        client-dir
-      (file-name-directory (directory-file-name client-dir)) ;; upper directory
-      )))
-
 (defun op:goto-line-at-point()
   (let* ((curr-line (op:curr-line)) (curr-buf (current-buffer)))
     (cond
@@ -114,27 +79,6 @@
      ((or (string-match "\\([A-Za-z]:[/|\\][^:;]*\\):\\([0-9]+\\)?" curr-line) ;; C:/dir/file.java:102 or D:\dir\file.java:102 string number is optional
           (string-match "^[^\\]*\\([^:]*\\):\\[\\([0-9]+\\)" curr-line)) ;; \Oleg\Dropbox\work\cxf\file-ws\src\main\java\org\op\filews\FileSystemImpl.java:[12,27] 
       (op:goto-line-in-file (match-string 1 curr-line) (string-to-number (or (match-string 2 curr-line) "0"))))
-     ((or (and 
-           ;; (or (string-match "P4[[:blank:]]+print-revs" (buffer-name)) (string-match "P4[[:blank:]]+Output" (buffer-name))) 
-           (string-match "^[[:blank:]]*\\([0-9]+\\)[[:blank:]]+" curr-line)) ;;" 91747 " in P4 print-revs or in P4 Output after calling p4-blame
-          (and 
-           ;; (string-match "P4 print-revs" (buffer-name))
-           (string-match "^\\([0-9]+\\)[[:blank:]]+" curr-line))  ;; p4-blame output buffer; change is in the beginning of the line
-          (and 
-           ;; (string-match "P4[[:blank:]]" (buffer-name))
-           (string-match "Change[[:blank:]]+\\([0-9]+\\)" curr-line))) ;; "Change 90321" as in P4 changes output
-      (p4-describe-internal (list "-s" (match-string 1 curr-line)))
-      (other-window 1)
-      (delete-other-windows))
-     ((or (string-match ".*?\\(//CT/.*?\\)#\\([0-9]+\\)" curr-line)   ; ... //CT/JAVA/filename#version edit
-          (string-match ".*?\\(//CT/.*?\\)[[:blank:]]+#" curr-line))  ; ... //CT/JAVA/filename # as in P4 submit
-      (find-file (op:perforce-ct-to-win (match-string 1 curr-line)))
-      (delete-other-windows))
-     ((string-match ".*?\\(//HEP/.*\\)#?" curr-line) 
-      (let* ((file (replace-regexp-in-string "#" "" (match-string 1 curr-line))) 
-             (win-file (concat "c:/temp/" (replace-regexp-in-string "/" "-" file))))
-        (shell-command (concat "p4 print " file "> " win-file))
-        (find-file win-file)))
      ((or (string-match "[([]\\([_-A-Za-z0-9]+\\.java\\):\\([0-9]+\\)" curr-line);;2008-12-27 ERROR [STDERR] at com.lysis.framework.common.util.xml.XMLUtil.writeXMLFile(XMLUtil.java:348)
           (string-match "^[[:blank:]]*\\([_-A-Za-z0-9]+\\.\\).*?[[:blank:]]+line:[[:blank:]]+\\([0-9]+\\)" curr-line) ;;Ims4xpl3dn4Imp30ExportAlgorithm.getCopy(DtvTemplateOwner) line: 1697	
           (string-match "class=\".*?\\.\\([[:alnum:]]+\\)\"" curr-line) ;; class="com.lysis.idtv3.vod.rules.DtvVodItemRulesLevel1"
@@ -203,24 +147,6 @@
   )
 
 
-;; <plugin>
-;;     <groupId>org.springframework.boot</groupId>
-;;     <artifactId>spring-boot-maven-plugin</artifactId>
-;;     <configuration>
-;;         <jvmArguments>
-;;             -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=6006 -Dserver.port=8181
-;;         </jvmArguments>
-;;     </configuration>
-;; </plugin>
-
-;; (defun op:eap-jboss (&optional arg)
-;;   (interactive "P")
-;;   (setenv "HOSTNAME" "helablinux01")
-;;   (setenv "SERVICE_NAME" "service_test")
-;;   (setenv "J2EP_DEBUG" "c:/temp/j2ep_internal.log")
-;;   (op:start-cmd-in-new-frame "c:/work/JBossEAP/jboss_cct_base/current/bin/" "run_dev.bat" arg)
-;;   )
-
 (defun op:h2 ()
   (interactive)
   (op:shell-in-dir "c:/Soft/H2/bin/" "h2-bin")
@@ -246,26 +172,6 @@
     ))
 
 
-
-
-(defun op:nginx ()
-  (interactive)
-  (shell-command "taskkill /F /IM nginx.exe /T")
-  (op:shell-in-dir "c:/Soft/nginx-1.9.11/"  "nginx-shell")
-  (switch-to-buffer "nginx-shell")
-  (comint-send-string (get-buffer-process "nginx-shell") "./nginx.exe\n")
-  (run-at-time "3 sec" nil (lambda () (kill-buffer-quitly t))))
-
-
-;; (defun op:rm-eap-jboss-dir ()
-;;   (interactive)
-;;   (shell-command "taskkill /F /IM cmd.exe /T")
-;;   (delete-directory "c:/work/JBossEAP/jboss_cct_base/" t))
-
-
-;; (defun op:jmeter ()
-;;   (interactive)
-;;   (start-process-shell-command "jmeter" nil "ant -f c:/p4_ws/JBossEAP_test/testing/jmeter/scripts/j2ep/test-suites/jmeter-suite-all.xml start-interactive-jmeter" ))
 
 (defun op:tomcat (&optional arg)
   (interactive "P")

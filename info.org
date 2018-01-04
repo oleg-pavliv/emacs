@@ -133,23 +133,6 @@ $ mongod --dbpath <path> --auth
 $ mongo  --port 27017 -u "mjf-user" -p "password" --authenticationDatabase "mjf"
 
 
-* Perforce
-** Label creation
-   - New label Ctrl-N focus on label's window
-   - Fill "Description", "Revision" with @ prefix, "View" and check "Locked"
-** list hijacked files
-   p4 diff -f -sl //LYSIS/CMS/iDTV/REL/17.001/...#have | grep -v "^same"
-** list modified files
-p4 files //LYSIS/CMS/iDTV/REL/3.7LYS135/...@2011/01/01,@now
-
-
-* ivy
-** file build-Eclipse.properties
-j2ep.default.resolver=public-evaluation-resolver
-public.evaluation.repo.loc=http://chx-artiprod-01:8081/artifactory/j2ep-jboss-7-dev/
-j2ep.base.ivy.dir=c:/p4_ws/local-repository/work-ivy
-
-
 * SQL
 ** insert image into DB
 $ xxd -p file.png | tr -d '\n' >file.hex
