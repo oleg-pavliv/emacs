@@ -32,6 +32,16 @@
     (message wmsg)
     (write-string-to-file wmsg "/tmp/emacs.log" )))
 
+(require 'prettier-js "~/emacs/addons/prettier-js.el")
+(setq prettier-js-args '(
+  "--single-quote"
+  "--print-width" "100"
+  "--tab-width" "2"
+  "--trailing-comma" "es5"
+))
+
+(add-hook 'js-mode-hook 'prettier-js-mode)
+(add-hook 'rjsx-mode-hook 'prettier-js-mode)
 
 ;; fast moving on the page. press C-c SPC and a first letter of a word
 ;; C-u C-c SPC       ==> ace-jump-char-mode

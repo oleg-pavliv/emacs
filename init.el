@@ -19,6 +19,13 @@
   version-control t)
 
 
+(defadvice js-jsx-indent-line (after js-jsx-indent-line-after-hack activate)
+  "Workaround sgml-mode and follow airbnb component style."
+  (save-excursion
+    (beginning-of-line)
+    (if (looking-at-p "^ +\/?> *$")
+        (delete-char sgml-basic-offset))))
+
 ;; is set because I dont use a default ls -l listing in dired and an error 'no file on this line' is thrown when I copy files in dired
 ;; (setq directory-listing-before-filename-regexp "[CD\\*]*[[:blank:]]*[rwxd-]+[[:blank:]]+[0-9a-zA-Z.]+[[:blank:]]+[0-9-]+[[:blank:]]+[0-9-:]+[[:blank:]]+")
 ;; (and
@@ -45,9 +52,6 @@
 
 (setq hippie-expand-try-functions-list '(try-expand-dabbrev try-expand-dabbrev-all-buffers try-expand-dabbrev-from-kill try-complete-file-name-partially try-complete-file-name try-expand-all-abbrevs try-expand-list try-expand-line try-complete-lisp-symbol-partially try-complete-lisp-symbol))
 (global-set-key "\M-/" 'hippie-expand)
-
-;; restore the previous window config with C-c left. Redo with C-c right
-(winner-mode 1)
 
 ;; move around the windows with Shift arrow
 (windmove-default-keybindings)
