@@ -70,7 +70,7 @@
 (setq dired-dnd-protocol-alist nil) ;; disable copy or move of file on drag-and-drop to dired mode
 
 (setq x-select-enable-clipboard t)
-(setq interprogram-paste-function (if (eq system-type 'windows-nt) 'x-selection-value 'x-cut-buffer-or-selection-value))
+(unless (eq system-type 'darwin)(setq interprogram-paste-function (if (eq system-type 'windows-nt) 'x-selection-value 'x-cut-buffer-or-selection-value)))
 
 (setq eval-expression-print-level 100)
 (setq eval-expression-print-length 10000)
@@ -98,7 +98,7 @@
 (define-key (current-global-map) (kbd "C-c l") 'align)
 
 
-(setq op:grep-find-cmd "find . -path '*/target' -prune -o -path '*/node_modules' -prune -o -path '*/__pycache__' -prune -o -path '*/frontend/dist' -prune -o -path '*/.git' -prune -o -type f -maxdepth 1 -print0 | xargs -0 -e grep -n ")
+(setq op:grep-find-cmd "find . -path '*/target' -prune -o -path '*/node_modules' -prune -o -path '*/__pycache__' -prune -o -path '*/frontend/dist' -prune -o -path '*/.git' -prune -o -type f -maxdepth 1 -print0 | xargs -0 grep -n ")
 
 (defun fgr (term)
   (interactive
@@ -348,17 +348,3 @@
                                 (interactive)
                                 (op:find-file-if-necessary)
                                 (git-timemachine)))
-
-
-(defun op:insert-dates ()
-  "insert a list of 100 dates"
-  (interactive)
-  (let* ((date (org-read-date))
-         (day (nth 3 (parse-time-string date)))
-         (month (nth 4 (parse-time-string date)))
-         (year (nth 5 (parse-time-string date)))
-         (time (encode-time 1 1 0 day month year)))
-    (dotimes (n 100)
-      (insert (format-time-string "%D %a, " time))
-      (setq day (1+ day))
-      (setq time (encode-time 1 1 0 day month year)))))

@@ -53,12 +53,6 @@
                                          (move-end-of-line nil)
                                          (insert " ==========> ")))
 
-(define-key org-mode-map (kbd "C-c i") (lambda ()
-                                         (interactive)
-                                         (op:http-chrome (concat "IST_URL/cgi-bin/WebObjects/ist.woa/wa/inspectRequest?requestNo=" (thing-at-point 'word)))))
-
-
-
 (defadvice org-agenda-list (after org-agenda-list-1buf activate)
   (delete-other-windows))
 
@@ -78,8 +72,6 @@
 
 (org-add-link-type "ie-http" 'op:http-ie)
 (org-add-link-type "ff-http" 'op:http-ff)
-(org-add-link-type "xml-spy" (lambda (file) (shell-command (concat "'C:/Program Files (x86)/Altova/XMLSpy2008/XMLSpy.exe' '" file "' &"))))
-(org-add-link-type "w32-shell" 'op:w32-shell-open)
 
 (org-add-link-type "load-xml-dir" (lambda (dir-buf-cust) 
                                     (let ((dbc (split-string dir-buf-cust ";")))

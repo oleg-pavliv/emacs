@@ -13,6 +13,22 @@
 (define-key calendar-mode-map (kbd "M-p") 'calendar-backward-month)
 
 
+
+
+(defun op:insert-dates ()
+  "insert a list of 100 dates"
+  (interactive)
+  (let* ((date (org-read-date))
+         (day (nth 3 (parse-time-string date)))
+         (month (nth 4 (parse-time-string date)))
+         (year (nth 5 (parse-time-string date)))
+         (time (encode-time 1 1 0 day month year)))
+    (dotimes (n 100)
+      (insert (format-time-string "%D %a, " time))
+      (setq day (1+ day))
+      (setq time (encode-time 1 1 0 day month year)))))
+
+
 ;; (set-frame-parameter nil 'alpha '(100 100))
 (defun toggle-transparency (unused)
   (interactive "P")

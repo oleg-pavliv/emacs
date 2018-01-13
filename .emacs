@@ -32,6 +32,7 @@
     (message wmsg)
     (write-string-to-file wmsg "/tmp/emacs.log" )))
 
+
 (require 'prettier-js "~/emacs/addons/prettier-js.el")
 (setq prettier-js-args '(
   "--single-quote"
@@ -42,6 +43,7 @@
 
 (add-hook 'js-mode-hook 'prettier-js-mode)
 (add-hook 'rjsx-mode-hook 'prettier-js-mode)
+
 
 ;; fast moving on the page. press C-c SPC and a first letter of a word
 ;; C-u C-c SPC       ==> ace-jump-char-mode
@@ -327,7 +329,7 @@
      (sequence "CANCELED")
      (sequence "POST-It" "TRASH"))))
  '(pabbrev-global-mode-buffer-size-limit 10000)
- '(package-selected-packages (quote (iedit elpy magit markdown-mode flycheck)))
+ '(package-selected-packages (quote (rjsx-mode iedit elpy magit markdown-mode flycheck)))
  '(paren-match-face (quote paren-face-match))
  '(safe-local-variable-values (quote ((Package . common-lisp-user) (package . user))))
  '(split-width-threshold 120)

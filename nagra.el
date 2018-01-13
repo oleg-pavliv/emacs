@@ -79,15 +79,7 @@
      ((or (string-match "\\([A-Za-z]:[/|\\][^:;]*\\):\\([0-9]+\\)?" curr-line) ;; C:/dir/file.java:102 or D:\dir\file.java:102 string number is optional
           (string-match "^[^\\]*\\([^:]*\\):\\[\\([0-9]+\\)" curr-line)) ;; \Oleg\Dropbox\work\cxf\file-ws\src\main\java\org\op\filews\FileSystemImpl.java:[12,27] 
       (op:goto-line-in-file (match-string 1 curr-line) (string-to-number (or (match-string 2 curr-line) "0"))))
-     ((or (string-match "[([]\\([_-A-Za-z0-9]+\\.java\\):\\([0-9]+\\)" curr-line);;2008-12-27 ERROR [STDERR] at com.lysis.framework.common.util.xml.XMLUtil.writeXMLFile(XMLUtil.java:348)
-          (string-match "^[[:blank:]]*\\([_-A-Za-z0-9]+\\.\\).*?[[:blank:]]+line:[[:blank:]]+\\([0-9]+\\)" curr-line) ;;Ims4xpl3dn4Imp30ExportAlgorithm.getCopy(DtvTemplateOwner) line: 1697	
-          (string-match "class=\".*?\\.\\([[:alnum:]]+\\)\"" curr-line) ;; class="com.lysis.idtv3.vod.rules.DtvVodItemRulesLevel1"
-          )
-      (op:look-for-file-in-all-buffers (match-string 1 curr-line) (string-to-number (or (match-string 2 curr-line) "0")) curr-buf))
-     ((string-match "^\\([_-A-Za-z0-9]+\\.tjp\\):\\([0-9]+\\)" curr-line)
-      (op:goto-line-in-file (match-string 1 curr-line) (string-to-number (match-string 2 curr-line))))
      (t (find-file-at-point)))))
-
 
 
 (defun filename-at-point-win ()
@@ -141,12 +133,6 @@
       (bubble-buffer-next))))
 
 
-(defun op:pds-tool2-spring-boot (&optional arg)
-  (interactive "P")
-  (op:start-cmd-in-new-frame "c:/work/pds-tool2/" "c:/Soft/Java/apache-maven-3.3.3/bin/mvn" arg)
-  )
-
-
 (defun op:h2 ()
   (interactive)
   (op:shell-in-dir "c:/Soft/H2/bin/" "h2-bin")
@@ -172,7 +158,6 @@
     ))
 
 
-
 (defun op:tomcat (&optional arg)
   (interactive "P")
   (let ((old-current-dir default-directory)
@@ -190,33 +175,6 @@
         (op:send-cmd-to-shell (concat tomcat-dir "/bin/catalina.bat jpda start\n") "tomcat-startup")
         (run-at-time "3 sec" nil (lambda () (kill-buffer-quitly t)))))
     (setq default-directory old-current-dir)))
-
-
-(defun op:camunda ()
-  (interactive)
-  (let ((old-current-dir default-directory))
-    (save-excursion ;; save-excursion is necessary to restore the default-directory. Otherwise it will be restored in another buffer
-      (setq default-directory "c:/Soft/camunda/tomcat-7.4.0/")
-      (op:send-cmd-to-shell "cd c:/Soft/camunda/tomcat-7.4.0/\n./start-camunda.bat\n" "camunda-startup")
-      (setq default-directory old-current-dir)
-      ))
-  ;; ((op:w32-shell-open "c:/Soft/camunda/tomcat/start-camunda.bat")
-  (run-at-time "3 sec" nil (lambda () (kill-buffer-quitly t)))
-  )
-
-
-(defun op:camunda-eval ()
-  (interactive)
-  (let ((old-current-dir default-directory))
-    (save-excursion ;; save-excursion is necessary to restore the default-directory. Otherwise it will be restored in another buffer
-      (setq default-directory "c:/Soft/camunda-eval")
-      (op:send-cmd-to-shell "cd c:/Soft/camunda-eval\n./start-camunda.bat\n" "camunda-startup")
-      (setq default-directory old-current-dir)
-      ))
-  ;; ((op:w32-shell-open "c:/Soft/camunda/tomcat/start-camunda.bat")
-  (run-at-time "3 sec" nil (lambda () (kill-buffer-quitly t)))
-  )
-
 
 
 
