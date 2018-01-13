@@ -62,94 +62,16 @@
 ;; (global-undo-tree-mode)
 
 
-;;---------------- evil -----------------------
-;; (add-to-list 'load-path (concat (getenv "emacs_home") "/evil"))
-;; (require 'evil)
-;; (evil-mode 1)
-;; (setq evil-move-cursor-back nil)
-
-;; (evil-set-initial-state 'dired-mode 'emacs)
-;; (evil-set-initial-state 'shell-mode 'emacs)
-;; (evil-set-initial-state 'org-mode 'emacs)
-
-;; (define-key global-map (kbd "C-c v") 'evil-local-mode)
-;; (define-key global-map (kbd "C-c C-v") 'evil-mode)
-;; ;; escape cancels everything
-;; (define-key evil-normal-state-map [escape] 'keyboard-quit)
-;; (define-key evil-visual-state-map [escape] 'keyboard-quit)
-;; (define-key minibuffer-local-map [escape] 'minibuffer-keyboard-quit)
-;; (define-key minibuffer-local-ns-map [escape] 'minibuffer-keyboard-quit)
-;; (define-key minibuffer-local-completion-map [escape] 'minibuffer-keyboard-quit)
-;; (define-key minibuffer-local-must-match-map [escape] 'minibuffer-keyboard-quit)
-;; (define-key minibuffer-local-isearch-map [escape] 'minibuffer-keyboard-quit)
-
-;; (define-key evil-insert-state-map (kbd "C-n") 'next-line)
-;; (define-key evil-insert-state-map (kbd "C-p") 'previous-line)
-;; (define-key evil-insert-state-map (kbd "C-e") 'move-end-of-line)
-;; (define-key evil-insert-state-map (kbd "C-k") 'delete-line)
-;; (define-key evil-insert-state-map (kbd "C-f") 'forward-char)
-;; (define-key evil-insert-state-map (kbd "C-y") 'yank)
-
-;; to define commands use the following
-;; (evil-ex-define-cmd "e[dit]" 'find-file)
-;; or even better
-;; (define-key evil-ex-map "e" 'find-file)
-
-;;---------------- rarely used stuff -----------------------
-;; (load-file (expand-file-name "~/emacs/addons/js2.elc"))
-;; (autoload 'js2-mode "js2" nil t)
-;; (add-to-list 'auto-mode-alist '("\\.js$" . js2-mode))
-
 (op:log "loading yasnippet")
 (require 'yasnippet "~/emacs/addons/yasnippet.el")
 (yas/initialize)
 (setq yas/root-directory "~/emacs/snippets")
 (yas/load-directory yas/root-directory)
 
-
-;;----------------------------------------------------------
-;; (require 'web-mode "~/emacs/addons/web-mode.el")
-;; (add-to-list 'auto-mode-alist '("\\.jsx$" . web-mode))
-;; (defadvice web-mode-highlight-part (around tweak-jsx activate)
-;;   (if (equal web-mode-content-type "jsx")
-;;       (let ((web-mode-enable-part-face nil))
-;;         ad-do-it)
-;;     ad-do-it))
-
-;;(flycheck-define-checker jsxhint-checker
-;;  "A JSX syntax and style checker based on JSXHint."
-
-;;  :command ("jsxhint" source)
-;;  :error-patterns
-;;  ((error line-start (1+ nonl) ": line " line ", col " column ", " (message) line-end))
-;;  :modes (web-mode))
-;;(add-hook 'web-mode-hook
-;;          (lambda ()
-;;            (when (equal web-mode-content-type "jsx")
-;;              ;; enable flycheck
-;;              (flycheck-select-checker 'jsxhint-checker)
-;;              (flycheck-mode))))
-
-
-;; (load-file (expand-file-name "~/emacs/addons/multi-web-mode/multi-web-mode.el"))
-
-;; (require 'multi-web-mode)
-;; (setq mweb-default-major-mode 'html-mode)
-;; (setq mweb-tags '((php-mode "<\\?php\\|<\\? \\|<\\?=" "\\?>")
-;;                   (espresso-mode "<script +\\(type=\"text/javascript\"\\|language=\"javascript\"\\)[^>]*>" "</script>")
-;;                   (css-mode "<style +type=\"text/css\"[^>]*>" "</style>")))
-;; (setq mweb-filename-extensions '("php" "htm" "html" "ctp" "phtml" "php4" "php5"))
-;; (multi-web-global-mode 1)
-
-
 ;;----------------------------------------------------------
 
 (require 'csv-mode "~/emacs/addons/csv-mode.el")
 
-
-;; (setq load-path (cons "~/emacs/addons/apel-10.8/" load-path))
-;; (load-file (expand-file-name "~/emacs/addons/elscreen.el"))
-;; (load "elscreen" "ElScreen" t)
 
 (op:log "loading ioccur")
 (require 'ioccur "~/emacs/addons/ioccur.elc")
@@ -299,6 +221,8 @@
  '(hippie-expand-try-functions-list
    (quote
     (try-expand-dabbrev try-expand-dabbrev-all-buffers try-expand-dabbrev-from-kill try-complete-file-name-partially try-complete-file-name try-expand-all-abbrevs try-expand-list try-expand-line try-complete-lisp-symbol-partially try-complete-lisp-symbol)))
+ '(js-indent-level 2)
+ '(js2-strict-trailing-comma-warning nil)
  '(line-move-visual nil)
  '(message-log-max 1000)
  '(org-agenda-remove-tags nil)
@@ -329,7 +253,7 @@
      (sequence "CANCELED")
      (sequence "POST-It" "TRASH"))))
  '(pabbrev-global-mode-buffer-size-limit 10000)
- '(package-selected-packages (quote (rjsx-mode iedit elpy magit markdown-mode flycheck)))
+ '(package-selected-packages (quote (rjsx-mode js2-mode iedit elpy magit)))
  '(paren-match-face (quote paren-face-match))
  '(safe-local-variable-values (quote ((Package . common-lisp-user) (package . user))))
  '(split-width-threshold 120)
