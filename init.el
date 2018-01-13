@@ -132,10 +132,6 @@
 
 (add-to-list 'compilation-error-regexp-alist '("^[ \t]*\\([A-Za-z.0-9_: \\-]+\\)(\\([0-9]+\\)[,]\\( *[0-9]+\\))\\( Microsoft JScript runtime error\\| JSLINT\\): \\(.+\\)$" 1 2 3))
 
-(add-hook 'js2-mode-hook (lambda () (setq compile-command
-                                          (let ((file (file-name-nondirectory buffer-file-name)))
-                                            (concat "cscript.exe " (getenv "home") "/emacs/scripts/jslint.js " file)))))
-
 (add-hook 'c-mode-hook (lambda () (setq compile-command 
                                         (let* ((src (file-name-nondirectory buffer-file-name))
                                                (exe (first (split-string file "\\."))))
@@ -277,7 +273,7 @@
 
 (global-unset-key "\C-z")
 
-(autoload 'fi:common-lisp "fi-site-init" "" t)
+;;(autoload 'fi:common-lisp "fi-site-init" "" t)
 
 (define-key (current-global-map) (kbd "C-c -") (lambda (kill-line) 
                                                  (interactive "P")
@@ -286,10 +282,6 @@
                                                    (kill-line)) 
                                                  (delete-horizontal-space)
                                                  (insert " ")))
-
-
-(setenv "PATH" (concat (getenv "home") "/emacs/scripts;" (getenv "PATH")))
-
 
 (add-hook 'find-file-hooks (lambda () 
                              (when (> (buffer-size) (* 1024 1024))

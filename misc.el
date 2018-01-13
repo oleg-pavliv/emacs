@@ -805,10 +805,6 @@ Ignores CHAR at point."
 ;;------------------------------------------------------------------------------------------------------
 
 
-(dired (concat (getenv "HOME") "/emacs/") "-AlhI")
-(op:mark-buffer-as-permanent "emacs")
-
-
 (defun op:get-clipboard-data ()
   (cond ((fboundp 'w32-get-clipboard-data) 'w32-get-clipboard-data)
         ((fboundp 'x-get-clipboard) 'x-get-clipboard)
