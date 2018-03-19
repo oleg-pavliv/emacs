@@ -4,17 +4,12 @@
 (load-file (expand-file-name "~/emacs/misc.el"))
 (require 'misc)
 
-(load-file (expand-file-name "~/emacs/nagra-specific.el"))
+;; (load-file (expand-file-name "~/emacs/nagra-specific.el"))
 
 
-(set-register ?a "grunt serve:predist")
-(set-register ?i "mvn install -Dmaven.test.skip=true")
-(set-register ?s "java -Dserver.port=8181 -agentlib:jdwp=transport=dt_socket,server=y,address=6006,suspend=n -jar hello-0.1.0.jar")
-(set-register ?j "java -Dserver.port=8181 -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=12345 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -jar hello-1.0-SNAPSHOT.jar")
-
-(set-register ?1 "find . -type d -name target -exec rm -r {} ';'")
-(set-register ?d (cons 'file (or (getenv "DOWNLOADS_DIR") "c:/Users/opavliv/Downloads/")))
-(set-register ?k (cons 'file (or (getenv "DESKTOP_DIR") "C:/Users/opavliv/Desktop/")))
+;; (set-register ?i "mvn install -Dmaven.test.skip=true")
+;; (set-register ?i "mvn install -Dmaven.test.skip=true")
+;; (set-register ?1 "find . -type d -name target -exec rm -r {} ';'")
 
 
 (defun op:shell-in-dir(dir buf)

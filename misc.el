@@ -72,8 +72,6 @@
     (setq c-comment-start-regexp "(@|/(/|[*][*]?))")
     (modify-syntax-entry ?@ "< b" java-mode-syntax-table)))
 
-(define-key grep-mode-map "\M-m" (lambda() (interactive) (compile-goto-error) (delete-other-windows)))
-
 (define-key (current-global-map) (kbd "C-z") '(lambda (beg end) (interactive "r") (if mark-active (delete-region beg end))))
 
 
@@ -87,16 +85,6 @@
                             (pop-to-buffer (get-buffer "*grep*"))
                             (delete-other-windows)
                             (toggle-read-only 0)))
-
-
-(defadvice compile-goto-error (after compile-goto-error-and-maximize activate)
-  (delete-other-windows))
-
-;; (defadvice compilation-start (after compilation-start-maximize activate)
-;;   (when (equal mode 'grep-mode)
-;;     (switch-to-buffer "*grep*")
-;;     (delete-other-windows)
-;;     (toggle-read-only 0)))
 
 
 (defun op:align (beg end)
@@ -230,18 +218,20 @@
 ;;(op:send-cmd-to-shell "ls\ncd u:/emacs/addons\ncat eimp.el\n" "test")
 
 
-
 (defun op:str-trim (str)
   (replace-regexp-in-string "\\(.*?\\)[[:blank:]]+$" "\\1" (replace-regexp-in-string "^[[:blank:]]+\\(.*\\)" "\\1" str)))
 
-;; (defun op:nullify-movie-files(dir pattern)
-;;   "replaces every movie file in a directory (not recursively) with a file with the same name and with a content from the predefined c:/temp/test/ok.txt"
-;;   (dolist (attrs (cddr (directory-files-and-attributes dir t))) 
-;;     (let* ((full-name (first attrs)) (is-dir1 (second attrs)) (name (file-name-nondirectory full-name)))
-;;       (when (string-match "\\(\\.avi$\\|\\.wmv$\\|\\.mpg$\\|\\.flv$\\)" name)
-;;         (delete-file full-name)
-;;         (copy-file pattern full-name)))))
-;; (op:nullify-movie-files "I:/movies/Lagutina/files.tvspas.ru/Video/Äåòñêèå" "C:/TEMP/test/ok.txt")
+
+(defun op-i:quit-ediff-without-confirmation ()
+  (interactive)
+  (let ((ediff-p4 (or (string-match "*P4[[:blank:]]" (buffer-name (ediff-get-buffer 'A)))
+                      (string-match "*P4[[:blank:]]" (buffer-name (ediff-get-buffer 'B))))))
+    (ediff-really-quit nil)
+    (delete-other-windows)
+    (unless ediff-p4
+      (kill-buffer-quitly)
+      (kill-buffer-other-window 1))
+    ))
 
 
 (add-hook 'ediff-keymap-setup-hook (lambda ()
@@ -525,7 +515,6 @@ Ignores CHAR at point."
     (message (concat "marking " b " as permanent"))
     (unless (member b *permanent-buffers*) (push b *permanent-buffers*))))
 
-(op:mark-buffer-as-permanent "*grep*")
 
 (defun op:confirm-kill-buffer(&optional buf)
   (or (not (member (or buf (buffer-name)) *permanent-buffers*)) 

@@ -33,16 +33,17 @@
     (write-string-to-file wmsg "/tmp/emacs.log" )))
 
 
-(require 'prettier-js "~/emacs/addons/prettier-js.el")
-(setq prettier-js-args '(
-  "--single-quote"
-  "--print-width" "100"
-  "--tab-width" "2"
-  "--trailing-comma" "es5"
-))
+;; (require 'prettier-js "~/emacs/addons/prettier-js.el")
+;; (setq exec-path (append '("/Users/opavliv/.nvm/versions/node/v6.12.3/bin") exec-path))
+;; (setq prettier-js-args '(
+;;   "--single-quote"
+;;   "--print-width" "100"
+;;   "--tab-width" "2"
+;;   "--trailing-comma" "es5"
+;; ))
 
-(add-hook 'js-mode-hook 'prettier-js-mode)
-(add-hook 'rjsx-mode-hook 'prettier-js-mode)
+;; (add-hook 'js-mode-hook 'prettier-js-mode)
+;; (add-hook 'rjsx-mode-hook 'prettier-js-mode)
 
 
 ;; fast moving on the page. press C-c SPC and a first letter of a word
@@ -99,6 +100,7 @@
 
 ;; (require 'package)
 ;; (add-to-list 'package-archives  '("melpa" . "http://melpa.org/packages/") t)
+;; to install a new package execute package-list-packages
 
 ;; (setq magit-last-seen-setup-instructions "1.4.0")
 (defadvice magit-show-commit (after magit-show-commit-and-maximize activate)
@@ -184,18 +186,6 @@
 (op:log "loading git-timemachine")
 (load-file (expand-file-name "~/emacs/addons/git-timemachine.el"))
 
-
-(op:log "loading json-reformat")
-(load-file (expand-file-name "~/emacs/addons/json-reformat.el"))
-
-
-(op:log "loading json-snatcher")
-(load-file (expand-file-name "~/emacs/addons/json-snatcher.el"))
-
-(op:log "loading json-mode")
-(load-file (expand-file-name "~/emacs/addons/json-mode.el"))
-
-
 ;; the following line adds op:sql-try-expand-column to the hippie expand. It is disabled now because sql-custom is not loaded
 ;; '(hippie-expand-try-functions-list (quote (op:sql-try-expand-column try-expand-dabbrev try-expand-dabbrev-all-buffers try-expand-dabbrev-from-kill try-complete-file-name-partially try-complete-file-name try-expand-all-abbrevs try-expand-list try-expand-line try-complete-lisp-symbol-partially try-complete-lisp-symbol)))
 
@@ -253,7 +243,7 @@
      (sequence "CANCELED")
      (sequence "POST-It" "TRASH"))))
  '(pabbrev-global-mode-buffer-size-limit 10000)
- '(package-selected-packages (quote (rjsx-mode js2-mode iedit elpy magit)))
+ '(package-selected-packages (quote (json-reformat rjsx-mode js2-mode iedit elpy magit)))
  '(paren-match-face (quote paren-face-match))
  '(safe-local-variable-values (quote ((Package . common-lisp-user) (package . user))))
  '(split-width-threshold 120)

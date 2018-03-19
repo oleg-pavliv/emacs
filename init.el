@@ -10,6 +10,10 @@
 ;; (add-to-list 'auto-mode-alist '("\\.m$" . octave-mode))
 
 
+(define-key global-map (kbd "<home>")  'beginning-of-line)
+(define-key global-map (kbd "<end>")  'end-of-line)
+
+
 ;;backup files
 (setq backup-directory-alist '(("." . "~/emacs-backup")))
 (setq backup-by-copying t)
@@ -18,6 +22,8 @@
   kept-old-versions 10
   version-control t)
 
+(set-register ?d "import pdb; pdb.set_trace()  \n")
+(set-register ?D "from celery.contrib import rdb;rdb.set_trace()  \n")
 
 (defadvice js-jsx-indent-line (after js-jsx-indent-line-after-hack activate)
   "Workaround sgml-mode and follow airbnb component style."
@@ -98,7 +104,7 @@
 (define-key (current-global-map) (kbd "C-c l") 'align)
 
 
-(setq op:grep-find-cmd "find . -path '*/target' -prune -o -path '*/node_modules' -prune -o -path '*/__pycache__' -prune -o -path '*/frontend/dist' -prune -o -path '*/.git' -prune -o -type f -maxdepth 1 -print0 | xargs -0 grep -n ")
+(setq op:grep-find-cmd "find . -path '*/target' -prune -o -path '*/node_modules' -prune -o -path '*/__pycache__' -prune -o -path '*/dist' -prune -o -path '*/.git' -prune -o -type f -maxdepth 1 -print0 | xargs -0 grep -n ")
 
 (defun fgr (term)
   (interactive
@@ -348,3 +354,8 @@
                                 (interactive)
                                 (op:find-file-if-necessary)
                                 (git-timemachine)))
+
+(define-key vc-prefix-map "b" (lambda ()
+                                (interactive)
+                                (op:find-file-if-necessary)
+                                (magit-blame)))
